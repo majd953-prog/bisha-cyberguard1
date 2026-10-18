@@ -598,11 +598,10 @@ if nav == "🔍 Live URL Threat Scanner":
         if not url_to_scan:
             st.warning("يرجى إدخال رابط صحيح.")
         else:
-            with st.spinner("جاري الفحص والتحليل العميق (Hybrid ML + Explainable AI) ..."):
-                threat_pct, severity, explain, features, artifacts = analyzer.analyze_url_with_explanations(
-                    url=url_to_scan,
-                    ml_engine=ml_engine,
-                )
+            with st.spinner# استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
+whois_info = artifacts.get("whois", {})
+domain_info = artifacts.get("domain_info", {})
+ssl_info = artifacts.get("ssl", {})
 
 st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
 dec_col1, dec_col2 = st.columns(2)
@@ -620,12 +619,11 @@ with dec_col1:
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
     st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")
-    whois_info = artifacts.get("whois", {})
     st.markdown('</div>', unsafe_allow_html=True)
 
 with dec_col2:
     st.markdown('<div class="card-soft">', unsafe_allow_html=True)
-    domain = domain_info.get("domain", "")
+    domain = domain_info.get("domain", "") if isinstance(domain_info, dict) else ""
     reg_date = whois_info.get("registration_date")
     registrar = whois_info.get("registrar")
     whois_status = whois_info.get("status", "unknown")
@@ -639,21 +637,22 @@ with dec_col2:
     st.markdown(f"**المسجل:** {registrar}")
     st.markdown(f"**حالة شهادة SSL:** {ssl_status}")
     st.markdown('</div>', unsafe_allow_html=True)
-                age_warning = False
-                if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
-                    age_warning = True
-                if whois_status == "unavailable":
-                    age_warning = True
 
-                if age_warning:
-                    st.markdown('<div class="card-accent critical" style="padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
-                    st.markdown("**⚠️ تنبيه أمني:**")
-                    if whois_status == "unavailable":
-                        st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
-                    if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
-                        st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
-                    st.markdown("</div>", unsafe_allow_html=True)
+# التحذيرات الأمنية بمسافات نظامية صحيحة
+age_warning = False
+if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
+    age_warning = True
+if whois_status == "unavailable":
+    age_warning = True
 
+if age_warning:
+    st.markdown('<div class="card-accent critical" style="padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
+    st.markdown("**⚠️ تنبيه أمني:**")
+    if whois_status == "unavailable":
+        st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
+    if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
+        st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
+    st.markdown("</div>", unsafe_allow_html=True)
                 st.markdown(
                     f"""
                     <div class="mono small" style="line-height: 1.8;">
