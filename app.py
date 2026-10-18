@@ -660,22 +660,24 @@ if nav == "🔍 Live URL Threat Scanner":
                    st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
                 if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
                    st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
-                st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="mono small" style="line-height: 1.8;">
-        <div><b>Domain:</b> {domain}</div>
-        <div><b>WHOIS Status:</b> {whois_status}</div>
-        <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
-        <div><b>Age:</b> {whois_info.get('age_years', 'N/A')}</div>
-        <div><b>Registrar:</b> {registrar or "N/A"}</div>
-        <div><b>SSL/TLS:</b> {ssl_status}</div>
-        <div><b>Issuer:</b> {ssl_issuer or "N/A"}</div>
-        <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+        # استخراج الدومين بأمان
+        domain = domain if 'domain' in locals() and domain else domain_info.get("domain") or whois_info.get("domain") or "N/A"
+        st.markdown(f"""
+        <div class="mono small" style="line-height: 1.8;">
+            <div><b>Domain:</b> {domain}</div>
+            <div><b>WHOIS Status:</b> {whois_status}</div>
+            <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
+            <div><b>Age:</b> {whois_info.get('age_years', 'N/A')}</div>
+            <div><b>Registrar:</b> {registrar or "N/A"}</div>
+            <div><b>SSL/TLS:</b> {ssl_status}</div>
+            <div><b>Issuer:</b> {ssl_issuer or "N/A"}</div>
+            <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('<div class="card-soft">', unsafe_allow_html=True)
     st.markdown("### 🧠 التفسير الذكي للقرار (Explainable AI Reasons)")
     reasons = explain.get("reasons", [])
     if not reasons:
