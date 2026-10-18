@@ -591,18 +591,26 @@ if nav == "🔍 Live URL Threat Scanner":
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    if scan_btn or ("url_to_scan" in st.session_state and url_input):
+   if scan_btn or ("url_to_scan" in st.session_state and url_input):
         url_to_scan = normalize_url(url_input)
         st.session_state["url_to_scan"] = url_to_scan
 
-    if not url_to_scan:
-        st.warning("يرجى إدخال رابط صحيح.")
-    else:
-                # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
+        if not url_to_scan:
+            st.warning("يرجى إدخال رابط صحيح.")
+        else:
+            with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
+                # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
+                result = analyzer.analyze_url(url_to_scan)
+                artifacts = result.get("artifacts", {})
+                explain = result.get("explain", {})
+                threat_pct = result.get("threat_pct", 0.0)
+                severity = result.get("severity", "Safe")
+                features = result.get("features", {})
+
+            # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
             whois_info = artifacts.get("whois", {})
             domain_info = artifacts.get("domain_info", {})
             ssl_info = artifacts.get("ssl", {})
-
             st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
             dec_col1, dec_col2 = st.columns(2)
 
