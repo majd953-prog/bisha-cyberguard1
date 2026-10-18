@@ -620,8 +620,9 @@ with dec_col1:
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
                 st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")
                 whois_info = artifacts.get("whois", {})
-                
-                whois_info = artifacts.get("whois", {})
+
+            with dec_col2:
+                st.markdown('<div class="card-soft">', unsafe_allow_html=True)
                 domain = domain_info.get("domain", "")
                 reg_date = whois_info.get("registration_date")
                 registrar = whois_info.get("registrar")
@@ -630,7 +631,12 @@ with dec_col1:
                 ssl_status = ssl_info.get("tls_status", "unknown")
                 ssl_issuer = ssl_info.get("issuer", "")
                 ssl_not_after = ssl_info.get("not_after", "")
-
+                
+                st.markdown(f"**النطاق:** `{domain}`")
+                st.markdown(f"**عمر النطاق:** {domain_age_days} يوم")
+                st.markdown(f"**المسجل:** {registrar}")
+                st.markdown(f"**حالة شهادة SSL:** {ssl_status}")
+                st.markdown('</div>', unsafe_allow_html=True)
                 age_warning = False
                 if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
                     age_warning = True
