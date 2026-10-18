@@ -610,7 +610,6 @@ with dec_col1:
                 st.markdown('<div class="card-soft">', unsafe_allow_html=True)
                 st.markdown("### 🎯 مؤشر الخطورة (Threat Score)")
                 
-                # ضبط نسبة مؤشر الخطورة لتتطابق منطقياً مع حالة الأمان
                 display_threat_pct = 5.0 if str(severity).lower() in ["safe", "آمن"] else threat_pct
                 
                 st.plotly_chart(plot_threat_gauge(display_threat_pct, severity), use_container_width=True)
@@ -619,10 +618,10 @@ with dec_col1:
                 st.markdown(severity_badge(severity), unsafe_allow_html=True)
 
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-                st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")                whois_info = artifacts.get("whois", {})
-                ssl_info = artifacts.get("ssl", {})
-                domain_info = artifacts.get("domain", {})
-
+                st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")
+                whois_info = artifacts.get("whois", {})
+                
+                whois_info = artifacts.get("whois", {})
                 domain = domain_info.get("domain", "")
                 reg_date = whois_info.get("registration_date")
                 registrar = whois_info.get("registrar")
