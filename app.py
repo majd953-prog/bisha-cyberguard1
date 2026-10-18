@@ -38,10 +38,10 @@ if "theme" not in st.session_state:
     st.session_state["theme"] = "light"  # default: Academic Light (بني غامق للأزرار)
 
 if "session_history" not in st.session_state:
-    st.session_history = []
+    st.session_state["session_history"] = []
 
 if "model_ready" not in st.session_state:
-    st.session_model_ready = False
+    st.session_state["model_ready"] = False
 
 
 # -----------------------------
@@ -78,8 +78,10 @@ def apply_theme(theme: str):
         neon2 = NEON_2
         plot_template = PLOTLY_DARK_TEMPLATE
 
-        # keep your original dark-mode button gradient
+        # keep your original dark-mode button gradient & contrast text
         button_bg_css = "linear-gradient(90deg, rgba(0,229,255,0.15), rgba(212,175,55,0.10))"
+        button_fg_css = "#EAF2FF"
+        button_border_css = "rgba(0,229,255,0.35)"
 
     else:
         bg = LIGHT_BG
@@ -93,9 +95,34 @@ def apply_theme(theme: str):
         neon2 = "#0F766E"
         plot_template = PLOTLY_LIGHT_TEMPLATE
 
-        # make Light mode buttons dark brown (طلبك)
+        # Light mode buttons: dark brown with clear readable light text (حل مشكلة القراءة)
         button_bg_css = f"linear-gradient(90deg, {COCO_BROWN}, {COCO_BROWN_2})"
+        button_fg_css = "#FFFFFF"  # نص أبيض ناصع لضمان وضوح القراءة فوق البني الغامق
+        button_border_css = GOLD   # إطار ذهبي متناسق مع الهوية
 
+    # تطبيق تنسيق الأزرار مباشرة لضمان وضوح النص بداخلها في كلا الوضعين
+    st.markdown(
+        f"""
+        <style>
+        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {{
+            background: {button_bg_css} !important;
+            color: {button_fg_css} !important;
+            border: 1px solid {button_border_css} !important;
+            font-weight: 600 !important;
+            transition: all 0.25s ease-in-out !important;
+        }}
+        div.stButton > button *, div.stDownloadButton > button *, div[data-testid="stFormSubmitButton"] > button * {{
+            color: {button_fg_css} !important;
+        }}
+        div.stButton > button:hover, div.stDownloadButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {{
+            border-color: {gold} !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25) !important;
+            transform: translateY(-1px);
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
     css = f"""
     <style>
       .main {{
