@@ -376,20 +376,30 @@ with st.sidebar:
         st.text_input("العام الجامعي", key="academic_year")
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-    st.caption("🧭 أقسام المنصة (Navigation)")
+    st.markdown("<div style='font-weight: 700; margin-bottom: 8px;'>🧭 أقسام المنصة (Navigation)</div>", unsafe_allow_html=True)
 
-    nav = st.radio(
-        "اختر القسم:",
-        options=[
-            "🔍 Live URL Threat Scanner",
-            "📊 Threat Intelligence & Statistics Dashboard",
-            "📱 Quishing QR & Bulk CSV Scanner",
-            "🏛️ Academic Metrics & ML Architecture",
-            "🎓 Project Overview & Documentation",
-        ],
-        index=0,
-    )
+    # تهيئة الحالة الافتراضية للقسم النشط
+    if "nav_section" not in st.session_state:
+        st.session_state["nav_section"] = "🔍 Live URL Threat Scanner"
 
+    # خيارات القائمة مع أيقونات تعبيرية واضحة
+    nav_options = {
+        "🔍 Live URL Threat Scanner": "🔍 الفحص الفوري للروابط",
+        "📊 Threat Intelligence & Statistics Dashboard": "📊 استخبارات وإحصائيات التهديدات",
+        "📱 Quishing QR & Bulk CSV Scanner": "📱 فحص QR وملفات CSV الجماعية",
+        "🏛️ Academic Metrics & ML Architecture": "🏛️ المقاييس ومعمارية الذكاء الاصطناعي",
+        "🎓 Project Overview & Documentation": "🎓 التوثيق الأكاديمي للمشروع"
+    }
+
+    # رسم الأزرار الفعلية بدلاً من دوائر الاختيار
+    for key, label in nav_options.items():
+        is_active = st.session_state["nav_section"] == key
+        btn_type = "primary" if is_active else "secondary"
+        if st.button(label, key=f"nav_btn_{key}", use_container_width=True, type=btn_type):
+            st.session_state["nav_section"] = key
+            st.rerun()
+
+    nav = st.session_state["nav_section"]
 # -----------------------------
 # Hero Header + Centered University Branding
 # -----------------------------
