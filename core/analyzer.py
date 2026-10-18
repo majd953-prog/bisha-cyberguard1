@@ -38,6 +38,20 @@ class URLAnalyzer:
             "albilad.com",
         ]
 
+        # 🟢 القائمة البيضاء للنطاقات الآمنة الرسمية (تستثنى تماماً من كاشف الانتحال وتعتبر آمنة)
+        self.whitelisted_domains = [
+            "ub.edu.sa",
+            "www.ub.edu.sa",
+            "absher.sa",
+            "www.absher.sa",
+            "tawakkalna.gov.sa",
+            "www.tawakkalna.gov.sa",
+            "nafath.sa",
+            "www.nafath.sa",
+            "gov.sa",
+            "edu.sa"
+        ]
+
         # Common phishing char patterns
         self.suspicious_substrings = [
             "login",
@@ -132,7 +146,6 @@ class URLAnalyzer:
 
         # Normalize Saudi: keep last 3 parts if possible (e.g., ub.edu.sa)
         if len(parts) >= 3:
-            # If endswith .sa, take last 3 parts
             if parts[-1] == "sa":
                 domain = ".".join(parts[-3:])
             else:
@@ -144,7 +157,6 @@ class URLAnalyzer:
     # 25 Features
     # -----------------------------
     def extract_25_features(self, url: str, domain: str, host: str, tld: str, scheme: str, path: str, query: str, ml_engine=None):
-        # 1-25: engineered signals
         u = url or ""
         host = host or ""
         domain = domain or ""
@@ -161,7 +173,6 @@ class URLAnalyzer:
         has_https = 1 if re.match(r"^https://", u, re.IGNORECASE) else 0
         has_http = 1 if re.match(r"^http://", u, re.IGNORECASE) else 0
 
-        # suspicious chars count
         at_count = u.count("@")
         hyphen_count = u.count("-")
         underscore_count = u.count("_")
@@ -173,78 +184,43 @@ class URLAnalyzer:
         percent_count = u.count("%")
         equal_count = u.count("=")
 
-        # IP detection
         ip_like = 1 if re.search(r"(?:\d{1,3}\.){3}\d{1,3}", host) else 0
-
-        # punycode detection
         punycode = 1 if "xn--" in u.lower() or re.search(r"\bxn--", host.lower()) else 0
-
-        # Port detection (e.g., :8080)
         port_present = 1 if re.search(r":\d{2,5}", host) else 0
 
-        # URL shorteners (common in phishing)
         shorteners = [
             "bit.ly", "tinyurl.com", "t.co", "ow.ly", "goo.gl", "is.gd", "cutt.ly", "buff.ly", "adf.ly"
         ]
         is_shortener = 1 if any(s in host for s in shorteners) else 0
 
-        # Path / query suspicious tokens
         lowered = u.lower()
         token_hits = 0
         for t in self.suspicious_substrings:
             if t in lowered:
                 token_hits += 1
 
-        # Shannon entropy
         entropy = self.shannon_entropy(u)
         entropy_domain = self.shannon_entropy(domain) if domain else 0.0
 
-        # Character diversity
         unique_chars = len(set(u)) if u else 0
         unique_chars_ratio = unique_chars / L if L > 0 else 0
 
-        # Ratio features
         digits_ratio = digit_count / L if L > 0 else 0
         alpha_ratio = alpha_count / L if L > 0 else 0
         dots_ratio = dot_count / L if L > 0 else 0
         hyphen_ratio = hyphen_count / L if L > 0 else 0
 
-        # Keyword/Pattern flags
-        has_symbol_spoof = 1 if any(sym in u for sym in ["@", "-", "_"]) else 0
-        has_at_and_dash = 1 if ("@" in u and "-" in u) else 0
-
-        # Suspicious length
-        long_url = 1 if L > 120 else 0
-        very_long_url = 1 if L > 200 else 0
-        short_url = 1 if 10 < L < 35 else 0  # suspicious sometimes
-
-        # Domain age proxy (if available through WHOIS in artifacts, but here fallback-ready proxy from text)
-        # We add placeholder-like feature computed from patterns: new domain likely contains punycode or shortener
-        # Real WHOIS is handled later in artifacts and also included via features through fallback.
-        # We'll attempt WHOIS age here but never hard-fail.
         whois_age_days, whois_registrar, whois_status = self.try_whois_age(domain)
 
         age_days = whois_age_days
         age_missing = 1 if whois_age_days is None else 0
 
-        # TLS/SSL feature proxy using scheme + port 443 patterns
-        # Real TLS status also collected in artifacts; features include scheme & host presence
-        tls_possible = 1 if scheme in ["https", ""] else 0
+        # 🟢 إذا كان النطاق مدرجاً في القائمة البيضاء، نجعل معامل الانتحال صفر تماماً
+        if host in self.whitelisted_domains or domain in self.whitelisted_domains:
+            saudi_spoof_score = 0.0
+        else:
+            saudi_spoof_score, saudi_target, saudi_mode = self.saudi_spoof_similarity(domain)
 
-        # Similarity-based Saudi spoofing score (typosquatting/homograph)
-        saudi_spoof_score, saudi_target, saudi_mode = self.saudi_spoof_similarity(domain)
-        saudi_spoof_flag = 1 if saudi_spoof_score >= 0.80 else 0
-
-        # Scheme mismatch: https missing
-        no_https = 1 if has_https == 0 else 0
-
-        # Query complexity
-        query_len = L_query
-        query_entropy = self.shannon_entropy(query) if query else 0.0
-        many_params = 1 if query.count("&") >= 2 else 0
-        has_credential_params = 1 if any(k in lowered for k in ["password", "pass", "session", "token", "otp", "code"]) else 0
-
-        # Final 25 features (fixed keys)
         features = {
             "url_length": L,
             "host_length": L_host,
@@ -273,11 +249,8 @@ class URLAnalyzer:
             "saudi_spoof_score": saudi_spoof_score,
         }
 
-        # Add a couple extras inside features dict (still counts as part of extraction logic; ML engine will pick exact list)
-        # Provide hint for model training
         features["label_hint"] = "unknown"
 
-        # Ensure all numeric
         for k, v in list(features.items()):
             if isinstance(v, bool):
                 features[k] = 1 if v else 0
@@ -290,24 +263,18 @@ class URLAnalyzer:
     # WHOIS age with fallback
     # -----------------------------
     def try_whois_age(self, domain: str):
-        # Return (age_days_or_none, registrar_or_str, status)
         if not domain:
             return None, None, "unavailable"
 
-        # If library missing, fallback
         if whois_lib is None:
             return None, None, "unavailable"
 
         try:
-            # whois_lib may block; set timeouts by using requests-like? library doesn't always support.
             w = whois_lib.whois(domain)
-
-            # registration_date can be list or datetime
             reg = w.creation_date or w.creationdate if hasattr(w, "creationdate") else None
             registrar = safe_to_str(getattr(w, "registrar", "")) if hasattr(w, "registrar") else None
 
             if isinstance(reg, list):
-                # take earliest
                 reg_dt = reg[0]
                 for r in reg:
                     if r and (getattr(r, "year", 0) < getattr(reg_dt, "year", 0)):
@@ -321,7 +288,6 @@ class URLAnalyzer:
             if isinstance(reg_dt, datetime):
                 reg_dt_utc = reg_dt.astimezone(timezone.utc) if reg_dt.tzinfo else reg_dt.replace(tzinfo=timezone.utc)
             else:
-                # attempt parse
                 try:
                     reg_dt_utc = datetime.fromisoformat(str(reg_dt)).replace(tzinfo=timezone.utc)
                 except Exception:
@@ -337,7 +303,7 @@ class URLAnalyzer:
             return None, None, "unavailable"
 
     # -----------------------------
-    # Collect artifacts: whois + ssl with fallback
+    # Collect artifacts
     # -----------------------------
     def collect_artifacts(self, url: str, domain: str):
         domain_obj = self.extract_domain(url)
@@ -356,7 +322,6 @@ class URLAnalyzer:
             "not_after": None,
         }
 
-        # WHOIS
         if whois_lib is not None and domain_name:
             try:
                 w = whois_lib.whois(domain_name)
@@ -365,7 +330,6 @@ class URLAnalyzer:
 
                 reg_dt = None
                 if isinstance(reg, list):
-                    # choose min valid
                     valid = [r for r in reg if isinstance(r, datetime)]
                     if valid:
                         reg_dt = min(valid, key=lambda x: x)
@@ -399,14 +363,10 @@ class URLAnalyzer:
             except Exception:
                 whois_info.update({"status": "unavailable"})
 
-        # SSL/TLS certificate check (best effort)
-        # We'll attempt only if host exists and scheme can be inferred.
         host = domain_obj.get("host", "")
-        scheme = domain_obj.get("scheme", "")
         port = 443
         if host:
             try:
-                # decide port
                 parsed = urlparse(url)
                 if parsed.port:
                     port = parsed.port
@@ -420,7 +380,6 @@ class URLAnalyzer:
                         who = cert.get("issuer", [])
                         issuer = None
                         if who:
-                            # issuer as list tuples
                             parts = []
                             for item in who:
                                 for k, v in item:
@@ -461,6 +420,13 @@ class URLAnalyzer:
     def build_reasons_and_adjustment(self, url: str, features: dict, domain: str, scheme: str, ml_engine=None):
         reasons = []
 
+        domain_obj = self.extract_domain(url)
+        host = domain_obj.get("host", "")
+
+        # 🟢 الاستثناء الفوري للنطاقات الآمنة في القائمة البيضاء
+        if host in self.whitelisted_domains or domain in self.whitelisted_domains:
+            return [], 0.0, "Safe"
+
         def add_reason(reason, weight, detail, feature_key=None):
             reasons.append({
                 "reason": reason,
@@ -469,7 +435,6 @@ class URLAnalyzer:
                 "feature_key": feature_key
             })
 
-        # Rule 1: HTTPS missing
         if features.get("has_https", 0) == 0:
             add_reason(
                 "عدم استخدام HTTPS (قد يشير لصفحة غير آمنة/تصيد)",
@@ -478,7 +443,6 @@ class URLAnalyzer:
                 feature_key="has_https"
             )
 
-        # Rule 2: shortener
         if features.get("shortener_present", 0) == 1:
             add_reason(
                 "استخدام مُختصر رابط (URL Shortener)",
@@ -487,7 +451,6 @@ class URLAnalyzer:
                 feature_key="shortener_present"
             )
 
-        # Rule 3: IP direct
         if features.get("ip_address_like", 0) == 1:
             add_reason(
                 "استخدام عنوان IP بدل اسم نطاق",
@@ -496,7 +459,6 @@ class URLAnalyzer:
                 feature_key="ip_address_like"
             )
 
-        # Rule 4: punycode
         if features.get("punycode_present", 0) == 1:
             add_reason(
                 "وجود Punycode (Homograph تمويه لغوي)",
@@ -505,7 +467,6 @@ class URLAnalyzer:
                 feature_key="punycode_present"
             )
 
-        # Rule 5: entropy high
         entropy = features.get("url_entropy", 0.0)
         if entropy >= 4.0:
             add_reason(
@@ -515,7 +476,6 @@ class URLAnalyzer:
                 feature_key="url_entropy"
             )
 
-        # Rule 6: suspicious tokens
         token_hits = features.get("suspicious_token_hits", 0)
         if token_hits >= 2:
             add_reason(
@@ -525,7 +485,6 @@ class URLAnalyzer:
                 feature_key="suspicious_token_hits"
             )
 
-        # Rule 7: special characters
         at_count = features.get("at_symbol_count", 0)
         hyphen_count = features.get("hyphen_count", 0)
         if at_count >= 1:
@@ -543,7 +502,6 @@ class URLAnalyzer:
                 feature_key="hyphen_count"
             )
 
-        # Rule 8: length
         L = features.get("url_length", 0)
         if L >= 200:
             add_reason(
@@ -560,7 +518,6 @@ class URLAnalyzer:
                 feature_key="url_length"
             )
 
-        # Rule 9: domain age if missing or very new
         age_days = features.get("domain_age_days", None)
         age_missing = features.get("domain_age_missing_flag", 0)
         if age_missing == 1:
@@ -579,10 +536,8 @@ class URLAnalyzer:
                     feature_key="domain_age_days"
                 )
 
-        # Rule 10: Saudi spoofing critical raise
         saudi_score = features.get("saudi_spoof_score", 0.0)
-        if saudi_score is not None:
-            # Compute similarity again to get target/mode via internal method
+        if saudi_score is not None and saudi_score > 0.0:
             saudi_score2, target, mode = self.saudi_spoof_similarity(domain)
             if saudi_score2 >= 0.80:
                 reasons.insert(
@@ -594,28 +549,18 @@ class URLAnalyzer:
                         "feature_key": "saudi_spoof_score",
                     }
                 )
-                # forced critical
                 return reasons, max(92.0, saudi_score2 * 100.0), "Critical Block"
 
-        # Weight-based adjustment
         total_w = sum(r.get("weight", 0) for r in reasons) if reasons else 0
-        # Map weight to additional threat increment
-        # base: classifier already gave probability; we enhance by reason-weight scaled.
         adj = min(16.0, total_w * 0.25) if total_w else 0.0
 
-        # compute adjusted percentage by rule-based adjustment around threshold
-        # If strong reasons present, we push up.
         base_adj_pct = 0.0
         if reasons:
             base_adj_pct = adj
-        # We'll return adjusted_pct as "pseudo" additional; app will map severity based on final adjusted
-        adjusted_pct = (0.0 + base_adj_pct) + 0.0  # app uses severity_from_pct on final adjusted_pct elsewhere
-        # But we need actual threat_pct from app; so return adjusted_pct as:
-        # We'll use a stable mapping: if total_w is large, move to critical range.
+
         if total_w == 0:
             adjusted_pct = 10.0
         else:
-            # Convert total_w into a [0,100] threat contribution
             adjusted_pct = min(100.0, 10.0 + total_w * 1.2)
 
         return reasons, adjusted_pct, None
@@ -657,12 +602,10 @@ class URLAnalyzer:
         for target in self.saudi_targets:
             t = target.lower().strip()
 
-            # Typosquatting: Levenshtein similarity (normalized)
             lev = self.levenshtein_distance(d, t)
             max_len = max(len(d), len(t), 1)
             lev_sim = 1.0 - (lev / max_len)
 
-            # Homograph proxy: compare normalized with common substitutions
             homo_d = self.normalize_homograph(d)
             homo_t = self.normalize_homograph(t)
             lev2 = self.levenshtein_distance(homo_d, homo_t)
@@ -694,7 +637,6 @@ class URLAnalyzer:
         if len(b) == 0:
             return len(a)
 
-        # DP with O(min(n,m)) memory
         if len(a) < len(b):
             a, b = b, a
         prev = list(range(len(b) + 1))
@@ -712,8 +654,6 @@ class URLAnalyzer:
     # Homograph normalization proxy
     # -----------------------------
     def normalize_homograph(self, s: str):
-        # Normalize common Latin homoglyph-like substitutions (proxy, not full Unicode spoofing)
-        # This is intentionally simple to keep compatibility on Streamlit Cloud.
         s = s.lower()
         subs = {
             "0": "o",
