@@ -391,34 +391,36 @@ with st.sidebar:
     )
 
 # -----------------------------
-# Hero Header + Integrated Theme Switcher
+# Hero Header + Centered University Branding
 # -----------------------------
-head_col1, head_col2 = st.columns([4.2, 1.1])
-
-with head_col1:
-    mode_badge_text = "🌙 SOC Dark Mode" if st.session_state["theme"] == "dark" else "☀️ Academic Light Mode"
-    st.markdown(
-        f"""
-        <div class="hero-banner">
-          <div>
-            <div class="hero-title">🛡️ Bisha CyberGuard</div>
-            <div class="hero-subtitle">Intelligent Phishing & Malicious URL Detection Platform · جامعة بيشة</div>
-          </div>
-          <div class="hero-badge">{mode_badge_text}</div>
+st.markdown(
+    f"""
+    <div class="hero-banner" style="flex-direction: column; text-align: center; justify-content: center; gap: 10px;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <span style="font-size: 2.2rem;">🏛️</span>
+        <div>
+          <div class="hero-title" style="justify-content: center;">Bisha CyberGuard</div>
+          <div class="hero-subtitle">جامعة بيشة · كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+      </div>
+      <div style="margin-top: 4px; font-size: 0.9rem; color: rgba(255,255,255,0.85);">
+        Intelligent Phishing & Malicious URL Detection Platform
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-with head_col2:
-    st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
+# زر تبديل الوضع في منتصف الشاشة بشكل أنيق تحت البانر
+col_center1, col_center2, col_center3 = st.columns([1, 1.5, 1])
+with col_center2:
     new_theme = "light" if st.session_state["theme"] == "dark" else "dark"
-    btn_label = "☀️ الوضع النهاري" if st.session_state["theme"] == "dark" else "🌙 الوضع الليلي (SOC)"
+    btn_label = "☀️ العودة للوضع الأكاديمي النهاري" if st.session_state["theme"] == "dark" else "🌙 التبديل إلى وضع مركز العمليات (SOC Dark)"
     if st.button(btn_label, use_container_width=True):
         apply_theme(new_theme)
         st.rerun()
 
-
+st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 # -----------------------------
 # Instantiate core modules
 # -----------------------------
