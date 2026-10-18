@@ -15,7 +15,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 from PIL import Image
-
 import requests
 
 from core.analyzer import URLAnalyzer
@@ -25,7 +24,7 @@ from model.ml_engine import MLEngine
 # Page configuration
 # -----------------------------
 st.set_page_config(
-    page_title="Bisha CyberGuard",
+    page_title="Bisha CyberGuard | منصة كشف التصيد والروابط الخبيثة",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -43,12 +42,22 @@ if "session_history" not in st.session_state:
 if "model_ready" not in st.session_state:
     st.session_state["model_ready"] = False
 
+# تثبيت البيانات الأكاديمية للباحث بشكل افتراضي
+if "student_name" not in st.session_state:
+    st.session_state["student_name"] = os.environ.get("STUDENT_NAME", "عبدالرحمن ماجد آل حامد")
+if "student_id" not in st.session_state:
+    st.session_state["student_id"] = os.environ.get("STUDENT_ID", "441000000")
+if "supervisor_name" not in st.session_state:
+    st.session_state["supervisor_name"] = os.environ.get("SUPERVISOR_NAME", "د. مشرف المشروع")
+if "academic_year" not in st.session_state:
+    st.session_state["academic_year"] = os.environ.get("ACADEMIC_YEAR", "2025 / 2026")
+
 
 # -----------------------------
 # Theme system (CSS + Plotly template)
 # -----------------------------
 DARK_BG = "#0A0F1D"
-LIGHT_BG = "#F8FAFC"
+LIGHT_BG = "#F4F6F9"
 
 NEON = "#00E5FF"
 NEON_2 = "#7CFF6B"
@@ -58,9 +67,9 @@ INK = "#0F172A"
 PLOTLY_DARK_TEMPLATE = "plotly_dark"
 PLOTLY_LIGHT_TEMPLATE = "plotly_white"
 
-# COCO Brown (Bisha-inspired) for Light mode buttons
+# COCO Brown (Bisha-inspired) for Light mode
 COCO_BROWN = "#3B1F14"
-COCO_BROWN_2 = "#2B140E"
+COCO_BROWN_2 = "#24110A"
 
 
 def apply_theme(theme: str):
@@ -68,84 +77,162 @@ def apply_theme(theme: str):
 
     if theme == "dark":
         bg = DARK_BG
+        sidebar_bg = "#0D1426"
         fg = "#EAF2FF"
         muted = "#93A4C7"
-        border = "rgba(0,229,255,0.25)"
-        card = "rgba(255,255,255,0.04)"
-        card2 = "rgba(0,229,255,0.07)"
+        border = "rgba(0, 229, 255, 0.25)"
+        card = "rgba(17, 26, 46, 0.85)"
+        card2 = "rgba(0, 229, 255, 0.08)"
         gold = GOLD
         neon = NEON
         neon2 = NEON_2
         plot_template = PLOTLY_DARK_TEMPLATE
 
-        # keep your original dark-mode button gradient & contrast text
-        button_bg_css = "linear-gradient(90deg, rgba(0,229,255,0.15), rgba(212,175,55,0.10))"
+        banner_bg = "linear-gradient(135deg, #0D1527 0%, #162447 100%)"
+        banner_border = "rgba(0, 229, 255, 0.4)"
+        button_bg_css = "linear-gradient(135deg, rgba(0, 229, 255, 0.20) 0%, rgba(212, 175, 55, 0.15) 100%)"
         button_fg_css = "#EAF2FF"
-        button_border_css = "rgba(0,229,255,0.35)"
+        button_border_css = "rgba(0, 229, 255, 0.45)"
+        input_bg = "#111A2E"
+
+        # ألوان الشارات في الوضع الليلي
+        safe_fg, low_fg, med_fg, high_fg, crit_fg = "#7CFF6B", "#00E5FF", "#FFE066", "#F472B6", "#FF4D79"
 
     else:
         bg = LIGHT_BG
-        fg = "#0B1220"
+        sidebar_bg = "#FFFFFF"
+        fg = "#1E293B"
         muted = "#475569"
-        border = "rgba(13,74,99,0.20)"
-        card = "rgba(13,74,99,0.05)"
-        card2 = "rgba(212,175,55,0.12)"
+        border = "rgba(212, 175, 55, 0.35)"
+        card = "#FFFFFF"
+        card2 = "rgba(212, 175, 55, 0.10)"
         gold = GOLD
-        neon = "#0B3D6B"
+        neon = COCO_BROWN
         neon2 = "#0F766E"
         plot_template = PLOTLY_LIGHT_TEMPLATE
 
-        # Light mode buttons: dark brown with clear readable light text (حل مشكلة القراءة)
-        button_bg_css = f"linear-gradient(90deg, {COCO_BROWN}, {COCO_BROWN_2})"
-        button_fg_css = "#FFFFFF"  # نص أبيض ناصع لضمان وضوح القراءة فوق البني الغامق
-        button_border_css = GOLD   # إطار ذهبي متناسق مع الهوية
+        banner_bg = f"linear-gradient(135deg, {COCO_BROWN} 0%, {COCO_BROWN_2} 100%)"
+        banner_border = GOLD
+        button_bg_css = f"linear-gradient(135deg, {COCO_BROWN} 0%, {COCO_BROWN_2} 100%)"
+        button_fg_css = "#FFFFFF"
+        button_border_css = GOLD
+        input_bg = "#FFFFFF"
 
-    # تطبيق تنسيق الأزرار مباشرة لضمان وضوح النص بداخلها في كلا الوضعين
-    st.markdown(
-        f"""
-        <style>
-        div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {{
-            background: {button_bg_css} !important;
-            color: {button_fg_css} !important;
-            border: 1px solid {button_border_css} !important;
-            font-weight: 600 !important;
-            transition: all 0.25s ease-in-out !important;
-        }}
-        div.stButton > button *, div.stDownloadButton > button *, div[data-testid="stFormSubmitButton"] > button * {{
-            color: {button_fg_css} !important;
-        }}
-        div.stButton > button:hover, div.stDownloadButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {{
-            border-color: {gold} !important;
-            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25) !important;
-            transform: translateY(-1px);
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+        # ألوان الشارات في الوضع النهاري (تباين عالٍ للقراءة الواضحة)
+        safe_fg, low_fg, med_fg, high_fg, crit_fg = "#15803D", "#0369A1", "#92400E", "#9D174D", "#B91C1C"
+
     css = f"""
     <style>
-      .main {{
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+
+      html, body, [class*="css"] {{
+        font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+      }}
+
+      .stApp, .main {{
         background-color: {bg} !important;
         color: {fg} !important;
       }}
+
       section[data-testid="stSidebar"] {{
-        background: {bg} !important;
+        background: {sidebar_bg} !important;
         color: {fg} !important;
         border-right: 1px solid {border} !important;
       }}
-      .sidebar-card {{
-        background: {card} !important;
-        border: 1px solid {border} !important;
+
+      /* البطاقة الأكاديمية الفخمة في القائمة الجانبية */
+      .academic-id-card {{
+        background: {banner_bg} !important;
+        border: 1.5px solid {gold} !important;
         border-radius: 14px;
-        padding: 14px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+        padding: 18px 16px;
+        color: #FFFFFF !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        direction: rtl;
+        text-align: right;
+        margin-bottom: 12px;
       }}
+      .academic-id-card .uni-title {{
+        color: {gold};
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        margin-bottom: 4px;
+      }}
+      .academic-id-card .dept-title {{
+        color: rgba(255,255,255,0.85);
+        font-size: 0.8rem;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      }}
+      .academic-id-card .student-name {{
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin-bottom: 8px;
+      }}
+      .academic-id-card .meta-row {{
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.82rem;
+        color: rgba(255,255,255,0.9);
+        margin-top: 5px;
+        background: rgba(0,0,0,0.2);
+        padding: 5px 10px;
+        border-radius: 6px;
+      }}
+      .academic-id-card .meta-label {{
+        color: {gold};
+        font-weight: 600;
+      }}
+
+      /* البانر العلوي الرئيسي (Hero Header) */
+      .hero-banner {{
+        background: {banner_bg};
+        border: 1.5px solid {banner_border};
+        border-radius: 16px;
+        padding: 22px 28px;
+        color: #FFFFFF;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+      }}
+      .hero-title {{
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }}
+      .hero-subtitle {{
+        color: rgba(255,255,255,0.85);
+        font-size: 0.95rem;
+        margin-top: 4px;
+      }}
+      .hero-badge {{
+        background: rgba(212, 175, 55, 0.18);
+        border: 1px solid {gold};
+        color: {gold};
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }}
+
+      /* البطاقات الداخلية */
       .card-soft {{
         background: {card} !important;
         border: 1px solid {border} !important;
         border-radius: 14px;
-        padding: 16px;
+        padding: 18px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
       }}
       .card-accent {{
         background: {card2} !important;
@@ -153,75 +240,97 @@ def apply_theme(theme: str):
         border-radius: 14px;
         padding: 16px;
       }}
-      .stButton>button {{
-        border: 1px solid {border} !important;
+
+      /* توحيد تنسيق الأزرار ومنع التعارض */
+      div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {{
         background: {button_bg_css} !important;
-        color: {fg} !important;
+        color: {button_fg_css} !important;
+        border: 1px solid {button_border_css} !important;
+        border-radius: 10px !important;
+        padding: 0.55rem 1rem !important;
+        font-weight: 700 !important;
+        transition: all 0.25s ease-in-out !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.10) !important;
+        unicode-bidi: plaintext !important;
       }}
-      .stTextInput>div>div>input {{
-        border: 1px solid {border} !important;
-        background: rgba(255,255,255,0.03) !important;
-        color: {fg} !important;
+      div.stButton > button *, div.stDownloadButton > button *, div[data-testid="stFormSubmitButton"] > button * {{
+        color: {button_fg_css} !important;
+        font-weight: 700 !important;
       }}
-      .stMarkdown {{
+      div.stButton > button:hover, div.stDownloadButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {{
+        border-color: {gold} !important;
+        box-shadow: 0 6px 16px rgba(212, 175, 55, 0.30) !important;
+        transform: translateY(-1px);
+      }}
+
+      /* حقول الإدخال */
+      .stTextInput > div > div > input {{
+        border: 1.5px solid {border} !important;
+        background: {input_bg} !important;
+        color: {fg} !important;
+        border-radius: 10px !important;
+        padding: 0.55rem 0.85rem !important;
+      }}
+      .stTextInput label, .stSelectbox label, .stMultiSelect label, .stSlider label, .stRadio label {{
+        color: {fg} !important;
+        font-weight: 700 !important;
+      }}
+
+      .stMarkdown, h1, h2, h3, h4 {{
         color: {fg} !important;
       }}
       .muted {{
         color: {muted} !important;
       }}
+
+      /* شارات التقييم (Badges) */
       .badge {{
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 12px;
+        padding: 8px 16px;
         border-radius: 999px;
         border: 1px solid {border};
-        background: {card} ;
-        font-weight: 700;
+        background: {card};
+        font-weight: 800;
+        font-size: 0.95rem;
       }}
-      .danger {{
-        background: rgba(231, 76, 60, 0.15) !important;
-        border-color: rgba(231, 76, 60, 0.35) !important;
-        color: #FFD1D1 !important;
-      }}
-      .critical {{
-        background: rgba(255, 0, 72, 0.18) !important;
-        border-color: rgba(255, 0, 72, 0.50) !important;
-        color: #FFE0EA !important;
+      .danger, .critical {{
+        background: rgba(239, 68, 68, 0.14) !important;
+        border-color: rgba(239, 68, 68, 0.50) !important;
+        color: {crit_fg} !important;
       }}
       .safe {{
-        background: rgba(124,255,107,0.12) !important;
-        border-color: rgba(124,255,107,0.35) !important;
-        color: #DFFFE4 !important;
+        background: rgba(34, 197, 94, 0.14) !important;
+        border-color: rgba(34, 197, 94, 0.45) !important;
+        color: {safe_fg} !important;
       }}
       .low {{
-        background: rgba(0,229,255,0.10) !important;
-        border-color: rgba(0,229,255,0.35) !important;
-        color: #D9FCFF !important;
+        background: rgba(14, 165, 233, 0.14) !important;
+        border-color: rgba(14, 165, 233, 0.45) !important;
+        color: {low_fg} !important;
       }}
       .medium {{
-        background: rgba(212,175,55,0.12) !important;
-        border-color: rgba(212,175,55,0.40) !important;
-        color: #FFF6D6 !important;
+        background: rgba(212, 175, 55, 0.16) !important;
+        border-color: rgba(212, 175, 55, 0.55) !important;
+        color: {med_fg} !important;
       }}
       .high {{
-        background: rgba(244, 114, 182, 0.12) !important;
-        border-color: rgba(244, 114, 182, 0.40) !important;
-        color: #FFDDF1 !important;
+        background: rgba(236, 72, 153, 0.14) !important;
+        border-color: rgba(236, 72, 153, 0.45) !important;
+        color: {high_fg} !important;
       }}
+
       .mono {{
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }}
       .small {{
-        font-size: 0.95rem;
+        font-size: 0.92rem;
       }}
       .hr {{
         height: 1px;
         background: {border};
-        margin: 12px 0;
-      }}
-      .title-glow {{
-        text-shadow: 0 0 18px rgba(0,229,255,0.30);
+        margin: 16px 0;
       }}
     </style>
     """
@@ -232,36 +341,42 @@ def apply_theme(theme: str):
 plot_template, FG, MUTED, NEON_COLOR, NEON2_COLOR, GOLD_COLOR = apply_theme(st.session_state["theme"])
 
 # -----------------------------
-# Identity header + sidebar
+# Sidebar: Academic Identity Card & Navigation
 # -----------------------------
 with st.sidebar:
-    st.markdown("### 🛡️ Bisha CyberGuard")
+    # بطاقة الهوية الأكاديمية الثابتة والاحترافية
     st.markdown(
-        """
-        <div class="muted small">
-        University of Bisha · College of Computing & IT · Department of Cybersecurity
+        f"""
+        <div class="academic-id-card">
+          <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
+          <div class="dept-title">كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
+          <div class="student-name">🎓 {st.session_state["student_name"]}</div>
+          <div class="meta-row">
+            <span class="meta-label">الرقم الجامعي:</span>
+            <span class="mono">{st.session_state["student_id"]}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">إشراف:</span>
+            <span>{st.session_state["supervisor_name"]}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">العام الجامعي:</span>
+            <span class="mono">{st.session_state["academic_year"]}</span>
+          </div>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    with st.container():
-        st.markdown('<div class="sidebar-card">', unsafe_allow_html=True)
+    # قائمة منسدلة مخفية لتعديل بيانات الإشراف عند الحاجة فقط
+    with st.expander("⚙️ تعديل بيانات الإشراف والبطاقة"):
+        st.text_input("اسم الباحث", key="student_name")
+        st.text_input("الرقم الجامعي", key="student_id")
+        st.text_input("اسم الدكتور المشرف", key="supervisor_name")
+        st.text_input("العام الجامعي", key="academic_year")
 
-        default_student = os.environ.get("STUDENT_NAME", "اسم الطالب")
-        default_student_id = os.environ.get("STUDENT_ID", "الرقم الجامعي")
-        default_supervisor = os.environ.get("SUPERVISOR_NAME", "اسم الدكتور المشرف")
-        default_year = os.environ.get("ACADEMIC_YEAR", "2024/2025")
-
-        student_name = st.text_input("اسم الطالب", value=default_student, key="student_name")
-        student_id = st.text_input("الرقم الجامعي", value=default_student_id, key="student_id")
-        supervisor_name = st.text_input("اسم الدكتور المشرف", value=default_supervisor, key="supervisor_name")
-        academic_year = st.text_input("العام الجامعي", value=default_year, key="academic_year")
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.caption("Navigation (5 Sections)")
+    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+    st.caption("🧭 أقسام المنصة (Navigation)")
 
     nav = st.radio(
         "اختر القسم:",
@@ -276,39 +391,30 @@ with st.sidebar:
     )
 
 # -----------------------------
-# Top theme toggle
+# Hero Header + Integrated Theme Switcher
 # -----------------------------
-st.markdown(
-    """
-    <div class="card-soft" style="margin-bottom: 14px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-        <div>
-          <div class="title-glow" style="font-size: 1.6rem; font-weight: 900;">Bisha CyberGuard</div>
-          <div class="muted small">Intelligent Phishing & Malicious URL Detection Platform</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="badge mono">
-            <span>🌓</span>
-            <span>Day/Night</span>
+head_col1, head_col2 = st.columns([4.2, 1.1])
+
+with head_col1:
+    mode_badge_text = "🌙 SOC Dark Mode" if st.session_state["theme"] == "dark" else "☀️ Academic Light Mode"
+    st.markdown(
+        f"""
+        <div class="hero-banner">
+          <div>
+            <div class="hero-title">🛡️ Bisha CyberGuard</div>
+            <div class="hero-subtitle">Intelligent Phishing & Malicious URL Detection Platform · جامعة بيشة</div>
           </div>
+          <div class="hero-badge">{mode_badge_text}</div>
         </div>
-      </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+        """,
+        unsafe_allow_html=True,
+    )
 
-toggle_col1, toggle_col2 = st.columns([1, 3])
-
-with toggle_col1:
-    theme_label = "🌙 SOC Dark" if st.session_state["theme"] == "dark" else "☀️ Academic Light"
-
-with toggle_col2:
+with head_col2:
+    st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
     new_theme = "light" if st.session_state["theme"] == "dark" else "dark"
-    if st.button(
-        f"Switch to {'Academic Light Mode' if st.session_state['theme']=='dark' else 'SOC Dark Mode'}",
-        use_container_width=True
-    ):
+    btn_label = "☀️ الوضع النهاري" if st.session_state["theme"] == "dark" else "🌙 الوضع الليلي (SOC)"
+    if st.button(btn_label, use_container_width=True):
         apply_theme(new_theme)
         st.rerun()
 
@@ -331,6 +437,7 @@ def get_ml_engine():
 analyzer = get_analyzer()
 ml_engine = get_ml_engine()
 
+
 # -----------------------------
 # Helpers
 # -----------------------------
@@ -339,7 +446,6 @@ def normalize_url(u: str) -> str:
     if not u:
         return u
 
-    # If user typed domain only, add scheme
     if not re.match(r"^https?://", u, re.IGNORECASE):
         u_try = "https://" + u
         return u_try
@@ -373,22 +479,23 @@ def severity_badge(severity: str):
 def plot_threat_gauge(threat_pct: float, severity: str):
     threat_pct = max(0.0, min(100.0, float(threat_pct)))
     color_map = {
-        "Safe": "#7CFF6B",
-        "Low": "#00E5FF",
+        "Safe": "#22C55E" if st.session_state["theme"] == "light" else "#7CFF6B",
+        "Low": "#0284C7" if st.session_state["theme"] == "light" else "#00E5FF",
         "Medium": "#D4AF37",
-        "High": "#F472B6",
-        "Critical Block": "#FF0048",
+        "High": "#DB2777" if st.session_state["theme"] == "light" else "#F472B6",
+        "Critical Block": "#DC2626" if st.session_state["theme"] == "light" else "#FF0048",
     }
-    bar_color = color_map.get(severity, "#00E5FF")
-    bg_color = "rgba(255,255,255,0.06)"
+    bar_color = color_map.get(severity, "#D4AF37")
+    bg_color = "rgba(0,0,0,0.04)" if st.session_state["theme"] == "light" else "rgba(255,255,255,0.06)"
+    num_color = FG
 
     fig = go.Figure(
         go.Indicator(
             mode="gauge+number",
             value=threat_pct,
-            number={"suffix": "%", "font": {"color": "white"}},
+            number={"suffix": "%", "font": {"color": num_color, "size": 42}},
             gauge={
-                "axis": {"range": [0, 100], "tickcolor": "rgba(255,255,255,0.4)"},
+                "axis": {"range": [0, 100], "tickcolor": MUTED},
                 "bar": {"color": bar_color},
                 "bgcolor": bg_color,
                 "steps": [
@@ -407,19 +514,18 @@ def plot_threat_gauge(threat_pct: float, severity: str):
         template=plot_template,
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin=dict(l=10, r=10, t=20, b=10),
-        height=320,
+        margin=dict(l=15, r=15, t=25, b=10),
+        height=300,
     )
     return fig
 
 
 def add_history(entry: dict):
-    st.session_history.insert(0, entry)
-    st.session_history = st.session_history[:50]
+    st.session_state["session_history"].insert(0, entry)
+    st.session_state["session_history"] = st.session_state["session_history"][:50]
 
 
 def compute_reason_table(reasons: list):
-    # reasons: [{reason, weight, detail}]
     rows = []
     total_weight = sum(r.get("weight", 0) for r in reasons) if reasons else 0
     for r in reasons:
@@ -438,24 +544,39 @@ def compute_reason_table(reasons: list):
 # NAVIGATION: 5 sections
 # -----------------------------
 if nav == "🔍 Live URL Threat Scanner":
-    st.subheader("🔍 Live URL Threat Scanner")
-    st.caption("Live URL Threat Scanner: 25-Feature Hybrid ML + Explainable AI + WHOIS/SSL Intelligence (with resilient fallback).")
+    st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+    st.subheader("🔍 الفحص الفوري للروابط والتهديدات | Live URL Threat Scanner")
+    st.caption("محرك هجين يجمع 25 خاصية مع التعلم الآلي التفسيري (Explainable AI) وفحص شهادات SSL وسجلات WHOIS.")
 
-    colA, colB = st.columns([2.2, 1])
+    # محاذاة حقل الإدخال مع زر الفحص على سطر واحد
+    colA, colB = st.columns([3.2, 1])
     with colA:
-        url_input = st.text_input("أدخل الرابط للفحص", placeholder="مثال: https://ub.edu.sa أو رابط تصيد/خبيث")
+        default_url_val = st.session_state.get("url_to_scan", "")
+        url_input = st.text_input(
+            "أدخل الرابط المراد فحصه:",
+            value=default_url_val,
+            placeholder="مثال: https://ub.edu.sa أو رابط يشتبه بأنه تصيد/خبيث",
+        )
     with colB:
-        scan_btn = st.button("ابدأ الفحص", use_container_width=True)
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        scan_btn = st.button("🚀 ابدأ الفحص الآن", use_container_width=True)
 
+    st.markdown("<div style='margin-top: 8px; margin-bottom: 6px; font-weight:600; font-size:0.9rem;' class='muted'>أمثلة سريعة للتجربة (Demo Cases):</div>", unsafe_allow_html=True)
     demo_col1, demo_col2, demo_col3, demo_col4 = st.columns(4)
 
     demo_urls = [
         "https://www.ub.edu.sa",
-        "https://ub-portal-login.com",  # phishing-like (demo)
-        "http://93.184.216.34/login",  # direct IP demo
-        "https://xn--pple-43d.com",  # punycode demo
+        "https://ub-portal-login.com",
+        "http://93.184.216.34/login",
+        "https://xn--pple-43d.com",
     ]
-    demo_labels = ["Sليم (UB)", "📣 تصيد (Demo)", "IP مباشر (Demo)", "Punycode (Demo)"]
+    # إصلاح تداخل الحروف العربية والإنجليزية
+    demo_labels = [
+        "✅ رابط سليم (جامعة بيشة)",
+        "🎣 رابط تصيد (Demo)",
+        "🌐 عنوان IP مباشر (Demo)",
+        "🎭 خداع Punycode (Demo)",
+    ]
 
     for i, (lbl, du) in enumerate(zip(demo_labels, demo_urls)):
         c = [demo_col1, demo_col2, demo_col3, demo_col4][i]
@@ -463,10 +584,7 @@ if nav == "🔍 Live URL Threat Scanner":
             st.session_state["url_to_scan"] = du
             st.rerun()
 
-    # ensure url_to_scan
-    if "url_to_scan" in st.session_state:
-        if not url_input:
-            url_input = st.session_state["url_to_scan"]
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if scan_btn or ("url_to_scan" in st.session_state and url_input):
         url_to_scan = normalize_url(url_input)
@@ -475,25 +593,26 @@ if nav == "🔍 Live URL Threat Scanner":
         if not url_to_scan:
             st.warning("يرجى إدخال رابط صحيح.")
         else:
-            with st.spinner("جاري الفحص والتحليل (Hybrid ML + Explainable AI) ..."):
+            with st.spinner("جاري الفحص والتحليل العميق (Hybrid ML + Explainable AI) ..."):
                 threat_pct, severity, explain, features, artifacts = analyzer.analyze_url_with_explanations(
                     url=url_to_scan,
                     ml_engine=ml_engine,
                 )
 
-            # Main decision display
-            dec_col1, dec_col2 = st.columns([1.4, 1.7])
+            st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+            dec_col1, dec_col2 = st.columns([1.35, 1.65])
 
             with dec_col1:
-                st.markdown("### Threat Percentage (0% - 100%)")
+                st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+                st.markdown("### 🎯 مؤشر الخطورة (Threat Score)")
                 st.plotly_chart(plot_threat_gauge(threat_pct, severity), use_container_width=True)
 
-                st.markdown("### Risk Severity Level")
+                st.markdown("### 🛡️ مستوى التهديد (Risk Level)")
                 st.markdown(severity_badge(severity), unsafe_allow_html=True)
 
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-                st.markdown("### Domain Age & WHOIS Intelligence")
-                # artifacts contains whois/ssl/etc
+                st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")
+
                 whois_info = artifacts.get("whois", {})
                 ssl_info = artifacts.get("ssl", {})
                 domain_info = artifacts.get("domain", {})
@@ -508,24 +627,23 @@ if nav == "🔍 Live URL Threat Scanner":
                 ssl_not_after = ssl_info.get("not_after", "")
 
                 age_warning = False
-                if isinstance(domain_age_days, (int, float)):
-                    if domain_age_days < 30:
-                        age_warning = True
+                if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
+                    age_warning = True
                 if whois_status == "unavailable":
                     age_warning = True
 
                 if age_warning:
-                    st.markdown('<div class="card-accent critical" style="padding:12px; border-radius:12px;">', unsafe_allow_html=True)
-                    st.markdown("**⚠️ تنبيه:**")
+                    st.markdown('<div class="card-accent critical" style="padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
+                    st.markdown("**⚠️ تنبيه أمني:**")
                     if whois_status == "unavailable":
-                        st.markdown("- تعذر التحقق من سجلات WHOIS (fallback تم تفعيله).")
+                        st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
                     if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
-                        st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30).")
+                        st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
                     st.markdown("</div>", unsafe_allow_html=True)
 
                 st.markdown(
                     f"""
-                    <div class="mono small">
+                    <div class="mono small" style="line-height: 1.8;">
                     <div><b>Domain:</b> {domain}</div>
                     <div><b>WHOIS Status:</b> {whois_status}</div>
                     <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
@@ -538,20 +656,21 @@ if nav == "🔍 Live URL Threat Scanner":
                     """,
                     unsafe_allow_html=True,
                 )
+                st.markdown("</div>", unsafe_allow_html=True)
 
             with dec_col2:
-                st.markdown("### Explainable Block Reasons (Why was this blocked?)")
+                st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+                st.markdown("### 🧠 التفسير الذكي للقرار (Explainable AI Reasons)")
                 reasons = explain.get("reasons", [])
-                total_weight = sum(r.get("weight", 0) for r in reasons) if reasons else 0
                 if not reasons:
-                    st.info("لا توجد أسباب واضحة من قواعد التفسير في هذه الحالة. (قد يعتمد القرار على ML features)")
+                    st.info("لم يتم رصد مؤشرات خطورة عالية في القواعد التفسيرية؛ الرابط يبدو آمناً.")
                 else:
                     df = compute_reason_table(reasons)
                     st.dataframe(df, use_container_width=True, height=240)
 
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-                st.markdown("### Feature Snapshot (Top Signals)")
+                st.markdown("### 📌 أبرز الإشارات المؤثرة (Feature Snapshot)")
                 weighted = sorted(reasons, key=lambda x: x.get("weight", 0), reverse=True)[:6]
                 top_rows = []
                 for r in weighted:
@@ -559,16 +678,17 @@ if nav == "🔍 Live URL Threat Scanner":
                     if key and features and key in features:
                         top_rows.append((key, features[key], r.get("reason")))
                 if not top_rows:
-                    top_rows = [("N/A", "N/A", "No top-weighted feature mapped")]
+                    top_rows = [("Safe_Profile", "Verified", "لا توجد إشارات خبيثة مهيمنة")]
                 for k, v, reason in top_rows:
                     st.markdown(f"- <span class='mono'>{k}</span>: <b>{v}</b> — {reason}", unsafe_allow_html=True)
 
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-                st.markdown("### Extracted 25 Features (Preview)")
+                st.markdown("### 🔬 مصفوفة الخصائص الـ 25 المستخرجة (25 Features Preview)")
                 feat_df = pd.DataFrame([features])
                 cols = list(feat_df.columns)
                 show_cols = cols[:18]
-                st.dataframe(feat_df[show_cols], height=220, use_container_width=True)
+                st.dataframe(feat_df[show_cols], height=200, use_container_width=True)
+                st.markdown("</div>", unsafe_allow_html=True)
 
             entry = {
                 "timestamp": datetime.utcnow().isoformat(),
@@ -579,23 +699,21 @@ if nav == "🔍 Live URL Threat Scanner":
                 "features": features,
             }
             add_history(entry)
-
-            st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة.")
+            st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
 
 elif nav == "📊 Threat Intelligence & Statistics Dashboard":
-    st.subheader("📊 Threat Intelligence & Statistics Dashboard")
-    st.caption("Session-level Threat Intelligence with KPIs, charts, and searchable history.")
+    st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
+    st.caption("تحليلات الجلسة المباشرة، مؤشرات الأداء الرئيسية (KPIs)، وسجل الفحص القابل للبحث والفلترة.")
 
-    hist = st.session_history
+    hist = st.session_state["session_history"]
     if not hist:
-        st.info("لا توجد نتائج ضمن هذه الجلسة حتى الآن. انتقل لقسم Live URL Threat Scanner أولاً.")
+        st.info("لا توجد نتائج ضمن هذه الجلسة حتى الآن. انتقل لقسم Live URL Threat Scanner وافحص رابطاً أولاً.")
     else:
         df = pd.DataFrame(hist)
         df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
         df["url_host"] = df["url"].apply(lambda x: analyzer.extract_domain(x).get("domain", "") if x else "")
 
         sev_order = ["Critical Block", "High", "Medium", "Low", "Safe"]
-        sev_counts = df["severity"].value_counts().to_dict()
         total = len(df)
 
         def sev_to_type(sev):
@@ -618,23 +736,23 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
 
         with kpi_col1:
             st.markdown(
-                '<div class="card-soft"><div class="muted small">Total Scanned</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(total),
-                unsafe_allow_html=True
+                f'<div class="card-soft"><div class="muted small">إجمالي الروابط المفحوصة</div><div style="font-size:2rem; font-weight:900;">{total}</div></div>',
+                unsafe_allow_html=True,
             )
         with kpi_col2:
             st.markdown(
-                '<div class="card-soft"><div class="muted small">Blocked</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(blocked_count),
-                unsafe_allow_html=True
+                f'<div class="card-soft"><div class="muted small">روابط محظورة (Blocked)</div><div style="font-size:2rem; font-weight:900;">{blocked_count}</div></div>',
+                unsafe_allow_html=True,
             )
         with kpi_col3:
             st.markdown(
-                '<div class="card-soft"><div class="muted small">Avg Threat %</div><div style="font-size:2rem; font-weight:900;">{:.1f}%</div></div>'.format(avg_threat),
-                unsafe_allow_html=True
+                f'<div class="card-soft"><div class="muted small">متوسط نسبة الخطورة</div><div style="font-size:2rem; font-weight:900;">{avg_threat:.1f}%</div></div>',
+                unsafe_allow_html=True,
             )
         with kpi_col4:
             st.markdown(
-                '<div class="card-soft"><div class="muted small">Critical Threats</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(critical_count),
-                unsafe_allow_html=True
+                f'<div class="card-soft"><div class="muted small">تهديدات حرجة (Critical)</div><div style="font-size:2rem; font-weight:900;">{critical_count}</div></div>',
+                unsafe_allow_html=True,
             )
 
         pie_df = pd.DataFrame({"severity": df["severity"].value_counts().index, "count": df["severity"].value_counts().values})
@@ -643,7 +761,7 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
 
         p1, p2 = st.columns([1.25, 1.15])
         with p1:
-            st.markdown("### Severity Distribution")
+            st.markdown("### توزيع مستويات الخطورة (Severity Distribution)")
             fig = px.pie(
                 pie_df,
                 names="severity",
@@ -651,7 +769,7 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
                 hole=0.35,
                 color="severity",
                 color_discrete_map={
-                    "Safe": "#7CFF6B",
+                    "Safe": "#22C55E",
                     "Low": "#00E5FF",
                     "Medium": "#D4AF37",
                     "High": "#F472B6",
@@ -662,7 +780,7 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
             st.plotly_chart(fig, use_container_width=True)
 
         with p2:
-            st.markdown("### Threat Level Summary (Avg)")
+            st.markdown("### متوسط مستوى التهديد للجلسة")
             avg_fig = plot_threat_gauge(avg_threat, "Medium" if avg_threat < 40 else "High" if avg_threat < 70 else "Critical Block")
             st.plotly_chart(avg_fig, use_container_width=True)
 
@@ -675,40 +793,30 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
 
         c1, c2 = st.columns([1.15, 1.2])
         with c1:
-            st.markdown("### Top Block/Threat Reasons (Frequency)")
+            st.markdown("### أكثر أسباب الحظر تكراراً")
             if len(reason_counts) == 0:
                 st.info("لا توجد بيانات أسباب في سجل الجلسة.")
             else:
                 fig = px.bar(
                     x=reason_counts.index,
                     y=reason_counts.values,
-                    labels={"x": "Reason", "y": "Count"},
+                    labels={"x": "السبب", "y": "التكرار"},
                     template=plot_template,
                 )
-                fig.update_layout(
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    height=360,
-                )
-                fig.update_traces(marker_color="#00E5FF")
+                fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=360)
+                fig.update_traces(marker_color=GOLD_COLOR)
                 st.plotly_chart(fig, use_container_width=True)
 
         with c2:
-            st.markdown("### Domain Age Trend (Malicious vs Safe)")
+            st.markdown("### علاقة عمر النطاق بنسبة الخطورة")
             if "features" in df.columns:
                 ages = []
-                labels = []
                 for item in df["features"]:
-                    if not item:
-                        continue
-                    age_days = item.get("domain_age_days", None)
-                    if age_days is None:
-                        continue
-                    ages.append(float(age_days))
-                    labels.append(item.get("label_hint", ""))
+                    if item and item.get("domain_age_days") is not None:
+                        ages.append(float(item.get("domain_age_days")))
 
                 if len(ages) < 2:
-                    st.info("لا توجد أعمار نطاق كافية في سجل الجلسة.")
+                    st.info("لا توجد أعمار نطاق كافية في سجل الجلسة لرسم المخطط.")
                 else:
                     fig = px.scatter(
                         df,
@@ -716,7 +824,7 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
                         y=df["features"].apply(lambda x: (x or {}).get("domain_age_days", np.nan)),
                         color="severity",
                         color_discrete_map={
-                            "Safe": "#7CFF6B",
+                            "Safe": "#22C55E",
                             "Low": "#00E5FF",
                             "Medium": "#D4AF37",
                             "High": "#F472B6",
@@ -729,13 +837,12 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
 
         st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-        st.markdown("### Session History (Search & Filter)")
+        st.markdown("### 🗂️ سجل الجلسة (البحث والفلترة)")
         with st.form("history_filter_form", clear_on_submit=False):
-            q = st.text_input("ابحث عن رابط/نطاق", value="")
-            sev_filter = st.multiselect("Severity Filter", options=sev_order, default=sev_order)
-            min_threat = st.slider("Minimum Threat %", 0, 100, 0, step=1)
-
-            submitted = st.form_submit_button("Apply Filters")
+            q = st.text_input("ابحث عن رابط أو نطاق:", value="")
+            sev_filter = st.multiselect("فلترة حسب المستوى (Severity):", options=sev_order, default=sev_order)
+            min_threat = st.slider("الحد الأدنى لنسبة الخطورة %:", 0, 100, 0, step=1)
+            submitted = st.form_submit_button("تطبيق الفلاتر")
 
         if submitted or True:
             fdf = df.copy()
@@ -749,32 +856,33 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
             fdf = fdf[fdf["threat_pct"] >= min_threat]
 
             if fdf.empty:
-                st.warning("لا نتائج مطابقة للبحث/الفلاتر.")
+                st.warning("لا توجد نتائج مطابقة للبحث أو الفلاتر المحددة.")
             else:
                 show_cols = ["timestamp", "url_host", "url", "threat_pct", "severity"]
                 st.dataframe(fdf[show_cols].sort_values("timestamp", ascending=False), use_container_width=True, height=360)
 
 elif nav == "📱 Quishing QR & Bulk CSV Scanner":
-    st.subheader("📱 Quishing QR & Bulk CSV Scanner")
-    st.caption("Upload QR image to decode URL, or upload CSV for bulk scanning.")
+    st.subheader("📱 فحص رموز QR (Quishing) والفحص الجماعي لملفات CSV")
+    st.caption("استخراج الروابط المخفية داخل صور الباركود QR وفحصها، أو رفع ملف CSV لفحص آلاف الروابط دفعة واحدة.")
 
-    tab1, tab2 = st.tabs(["🔳 QR Code Scanner", "📄 Bulk CSV Scanner"])
+    tab1, tab2 = st.tabs(["🔳 فاحص رموز QR Code", "📄 الفحص الجماعي Bulk CSV"])
 
     with tab1:
-        st.markdown("### QR Decoder → Extract URL → Analyze")
-        qr_file = st.file_uploader("ارفع صورة QR Code", type=["png", "jpg", "jpeg", "webp"], accept_multiple_files=False)
+        st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+        st.markdown("### 📷 فك تشفير QR Code واستخراج الرابط لتحليله")
+        qr_file = st.file_uploader("ارفع صورة تحتوي على رمز QR Code", type=["png", "jpg", "jpeg", "webp"], accept_multiple_files=False)
 
         if qr_file:
             img = Image.open(qr_file).convert("RGB")
-            st.image(img, caption="Uploaded QR Image", use_container_width=True)
+            st.image(img, caption="صورة QR المرفوعة", width=280)
 
-            decode_btn = st.button("Decode & Scan", use_container_width=True)
+            decode_btn = st.button("🔍 فك الرمز وبدء الفحص الأمني", use_container_width=True)
             if decode_btn:
                 try:
                     import cv2
                     from pyzbar.pyzbar import decode as zbar_decode
                 except Exception:
-                    st.error("تعذر تفعيل فك QR. يرجى التأكد من مكتبات pyzbar/opencv في المتطلبات.")
+                    st.error("تعذر تفعيل فك QR. يرجى التأكد من تثبيت مكتبات pyzbar و opencv.")
                     st.stop()
 
                 arr = np.array(img)
@@ -782,20 +890,20 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
                 decoded = zbar_decode(bgr)
 
                 if not decoded:
-                    st.error("لم يتم العثور على نص/رابط داخل QR.")
+                    st.error("لم يتم العثور على نص أو رابط داخل صورة QR.")
                 else:
                     payloads = [d.data.decode("utf-8", errors="ignore") for d in decoded if d.data]
-                    st.success(f"تم استخراج {len(payloads)} نتيجة من QR.")
+                    st.success(f"تم استخراج {len(payloads)} رابط من رمز QR بنجاح.")
 
                     for p in payloads:
                         url_to_scan = normalize_url(p)
-                        with st.spinner("Analyzing extracted QR URL ..."):
+                        with st.spinner("جاري تحليل الرابط المستخرج من QR ..."):
                             threat_pct, severity, explain, features, artifacts = analyzer.analyze_url_with_explanations(
                                 url=url_to_scan,
                                 ml_engine=ml_engine,
                             )
-                        st.markdown("### QR Extracted Link Result")
-                        st.markdown(f"- <span class='mono'>Extracted URL:</span> <b class='mono'>{url_to_scan}</b>", unsafe_allow_html=True)
+                        st.markdown("### نتيجة فحص رابط QR")
+                        st.markdown(f"- <span class='mono'>الرابط المستخرج:</span> <b class='mono'>{url_to_scan}</b>", unsafe_allow_html=True)
                         st.markdown(severity_badge(severity), unsafe_allow_html=True)
                         st.plotly_chart(plot_threat_gauge(threat_pct, severity), use_container_width=True)
 
@@ -808,12 +916,14 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
                             "features": features,
                         }
                         add_history(entry)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with tab2:
-        st.markdown("### Upload CSV → Bulk Scan → Download Results")
-        st.markdown("<div class='muted small'>Expected CSV columns: url (or URL). You can upload any file; we will attempt to detect the column.</div>", unsafe_allow_html=True)
+        st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+        st.markdown("### 📄 رفع ملف CSV للفحص الجماعي وتحميل التقرير")
+        st.markdown("<div class='muted small'>يتعرف النظام تلقائياً على عمود الروابط (url, link, uri, href).</div>", unsafe_allow_html=True)
 
-        csv_file = st.file_uploader("ارفع ملف CSV يحتوي روابط", type=["csv"], accept_multiple_files=False)
+        csv_file = st.file_uploader("ارفع ملف CSV يحتوي على قائمة الروابط", type=["csv"], accept_multiple_files=False)
 
         if csv_file:
             df_in = pd.read_csv(csv_file)
@@ -827,9 +937,9 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
             if url_col is None:
                 url_col = df_in.columns[0]
 
-            st.info(f"Using URL column: <b>{url_col}</b>", unsafe_allow_html=True)
+            st.info(f"تم اختيار عمود الروابط تلقائياً: **{url_col}**")
 
-            run_btn = st.button("Start Bulk Scan", use_container_width=True)
+            run_btn = st.button("🚀 بدء الفحص الجماعي (Start Bulk Scan)", use_container_width=True)
             if run_btn:
                 results = []
                 progress = st.progress(0)
@@ -886,53 +996,54 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
 
                 progress.empty()
                 df_out = pd.DataFrame(results)
-                st.success("Bulk scan completed!")
+                st.success("اكتمل الفحص الجماعي بنجاح!")
 
                 st.dataframe(df_out, use_container_width=True, height=380)
 
                 out_buf = io.StringIO()
                 df_out.to_csv(out_buf, index=False)
                 st.download_button(
-                    label="Download Results CSV",
+                    label="📥 تحميل تقرير النتائج (Download CSV)",
                     data=out_buf.getvalue().encode("utf-8"),
                     file_name=f"bisha_cyberguard_bulk_results_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv",
                     mime="text/csv",
                     use_container_width=True,
                 )
+        st.markdown("</div>", unsafe_allow_html=True)
 
 elif nav == "🏛️ Academic Metrics & ML Architecture":
-    st.subheader("🏛️ Academic Metrics & ML Architecture")
-    st.caption("Confusion Matrix, ROC-AUC, and Feature Importance for the trained RandomForest model.")
+    st.subheader("🏛️ المقاييس الأكاديمية ومعمارية التعلم الآلي | Academic Metrics & ML Architecture")
+    st.caption("تقييم أداء نموذج RandomForest، مصفوفة الارتباك (Confusion Matrix)، منحنى ROC-AUC، وأهمية الخصائص.")
 
     metrics = ml_engine.get_metrics()
     if not metrics:
-        st.warning("Model metrics غير متاحة حالياً.")
+        st.warning("بيانات مقاييس النموذج غير متاحة حالياً.")
     else:
         mcol1, mcol2 = st.columns(2)
         with mcol1:
-            st.markdown("### Model Performance Metrics")
+            st.markdown("### 📈 مقاييس كفاءة النموذج (Performance Metrics)")
             mt = metrics.get("report", {})
             if mt:
                 st.markdown(
                     f"""
-                <div class="card-soft">
-                  <div><b>Accuracy:</b> {mt.get('accuracy', 'N/A')}</div>
-                  <div><b>Precision:</b> {mt.get('precision', 'N/A')}</div>
-                  <div><b>Recall:</b> {mt.get('recall', 'N/A')}</div>
-                  <div><b>F1-Score:</b> {mt.get('f1', 'N/A')}</div>
-                </div>
-                """,
+                    <div class="card-soft" style="line-height: 2;">
+                      <div><b>Accuracy (الدقة الكلية):</b> <span class="mono">{mt.get('accuracy', 'N/A')}</span></div>
+                      <div><b>Precision (دقة التنبؤ الإيجابي):</b> <span class="mono">{mt.get('precision', 'N/A')}</span></div>
+                      <div><b>Recall (الحساسية / الاستدعاء):</b> <span class="mono">{mt.get('recall', 'N/A')}</span></div>
+                      <div><b>F1-Score (المتوسط التوافقي):</b> <span class="mono">{mt.get('f1', 'N/A')}</span></div>
+                    </div>
+                    """,
                     unsafe_allow_html=True,
                 )
 
-            st.markdown("### ROC-AUC")
+            st.markdown("### منحنى ROC-AUC")
             st.plotly_chart(metrics.get("roc_fig"), use_container_width=True)
 
         with mcol2:
-            st.markdown("### Confusion Matrix")
+            st.markdown("### مصفوفة الارتباك (Confusion Matrix)")
             st.plotly_chart(metrics.get("cm_fig"), use_container_width=True)
 
-            st.markdown("### Feature Importance (Top Signals)")
+            st.markdown("### ترتيب أهمية الخصائص (Feature Importance)")
             fi_df = metrics.get("feature_importance_df", pd.DataFrame())
             if fi_df is None or fi_df.empty:
                 st.info("No feature importance available.")
@@ -941,127 +1052,90 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
                 st.dataframe(fi_df, use_container_width=True, height=260)
 
         st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-        st.markdown("## Explainability: Shannon Entropy & Decision Logic")
+        st.markdown("## 📐 الأساس الرياضي: إنتروبيا شانون (Shannon Entropy) ومنطق القرار")
         st.markdown(
             """
             <div class="card-soft">
-            <div><b>Shannon Entropy (الحساسية للتوزيع العشوائي للحروف):</b></div>
-            <div class="muted small">
-            تمثل درجة تعقيد/عشوائية الرابط. رياضيًا:
-            </div>
-            <div class="mono small" style="margin-top:10px;">
-            H = - Σ (p_i * log2(p_i))
-            </div>
-            <div class="muted small" style="margin-top:10px;">
-            حيث p_i هي احتمالية ظهور الرمز i ضمن نص الرابط/الدومين.
-            </div>
-
-            <div class="muted small" style="margin-top:10px;">
-            كما يتم دمج إشارات أخرى (HTTPS/Domain Age/Punycode/Port/IP/Pattern Indicators)
-            مع <b>RandomForestClassifier</b> لتوليد درجة الخطورة.
-            </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-        st.markdown("### Model Details (Hybrid Pipeline)")
-        st.markdown(
-            """
-            <div class="card-soft">
-              <div><b>Hybrid Signals:</b></div>
-              <ul class="muted small">
-                <li>Static URL/Text features (length, entropy, char distributions)</li>
-                <li>Transport & SSL signals (scheme, TLS reachable, certificate presence)</li>
-                <li>WHOIS-derived intelligence (registration date/age/registrar) with fallback</li>
-                <li>Saudi domain spoofing detector (Typosquatting + Homograph distance)</li>
-                <li>Explainable reasons with weighted contributions</li>
-              </ul>
+              <div><b>Shannon Entropy (قياس العشوائية اللغوية في الروابط الخبيثة):</b></div>
+              <div class="muted small" style="margin-top:6px;">
+              تُستخدم لقياس درجة تعقيد وعشوائية الحروف داخل النطاق والرابط (حيث تميل روابط التصيد المولدة آلياً DGA إلى امتلاك إنتروبيا مرتفعة). وتُحسب رياضياً عبر المعادلة:
+              </div>
+              <div class="mono" style="margin:12px 0; padding:10px; background:rgba(212,175,55,0.1); border-radius:8px; text-align:center; font-weight:700;">
+              H(X) = - Σ P(x_i) · log₂ P(x_i)
+              </div>
+              <div class="muted small">
+              حيث تمثل <b>P(x_i)</b> احتمالية تكرار الحرف أو الرمز داخل نص الرابط، ويتم دمج هذا المؤشر مع 24 خاصية أخرى داخل مصنف <b>RandomForestClassifier</b>.
+              </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
 elif nav == "🎓 Project Overview & Documentation":
-    st.subheader("🎓 Project Overview & Documentation")
-    st.caption("System architecture, goals, methodology, and academic documentation.")
+    st.subheader("🎓 التوثيق الأكاديمي ونظرة عامة على المشروع | Project Documentation")
+    st.caption("الأهداف البحثية، المنهجية العلمية، ومعمارية النظام المطور في قسم الأمن السيبراني بجامعة بيشة.")
 
-    col1, col2 = st.columns([1.1, 1.2])
+    col1, col2 = st.columns([1.15, 1.15])
     with col1:
-        st.markdown("## أهداف المشروع")
+        st.markdown("## 🎯 أهداف المشروع البحثية")
         st.markdown(
             """
             <div class="card-soft">
-              <ul class="muted small">
-                <li>تحويل فحص الروابط من تحليل يدوي إلى <b>منظومة ذكية</b> تعتمد على التعلم الآلي الهجين.</li>
-                <li>خفض المخاطر عبر كشف التصيد والروابط الخبيثة والتمويه (Punycode/Patterns/IP).</li>
-                <li>إتاحة تفسير واضح للأسباب التي تقود للقرار باستخدام Explainable AI.</li>
-                <li>دمج ذكاء WHOIS/SSL مع fallback لضمان الاستمرارية حتى عند انقطاع الاتصال الخارجي.</li>
-                <li>حماية النطاقات السعودية الحساسة من Typosquatting/Homograph عبر مسافة التشابه النصي.</li>
+              <ul class="muted small" style="line-height: 1.9;">
+                <li>تحويل فحص الروابط من تحليل يدوي تقليدي إلى <b>منظومة ذكية استباقية</b> تعتمد على التعلم الآلي الهجين.</li>
+                <li>رفع دقة الكشف عن هجمات التصيد (Phishing) والتمويه البصري (Punycode / Homograph) وعناوين IP المباشرة.</li>
+                <li>تطبيق مفهوم <b>الذكاء الاصطناعي القابل للتفسير (Explainable AI)</b> لتوضيح الأسباب التقنية والأوزان التي أدت لحظر الرابط.</li>
+                <li>دمج استخبارات النطاقات (WHOIS & SSL/TLS) مع آلية استمرارية (Resilient Fallback) لضمان عمل المنصة في كافة الظروف.</li>
+                <li>حماية النطاقات الوطنية والأكاديمية السعودية من انتحال الهوية (Typosquatting) عبر خوارزميات التشابه النصي.</li>
               </ul>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
-        st.markdown("## المنهجية والمعمارية")
+        st.markdown("## ⚙️ منهجية العمل (System Pipeline)")
         st.markdown(
             """
             <div class="card-soft">
-              <div><b>Pipeline:</b></div>
-              <ol class="muted small">
-                <li>استخراج خصائص URL (25 Feature signals).</li>
-                <li>جمع إشارات WHOIS/SSL (إن توفر) مع fallback عند فشل الاستعلام.</li>
-                <li>Saudi Domain Spoofing Detector (Similarity + Critical raise).</li>
-                <li>التنبؤ باستخدام RandomForestClassifier.</li>
-                <li>توليد أسباب تفسيرية وزيادة/خفض درجة الخطورة بناءً على الأوزان.</li>
+              <ol class="muted small" style="line-height: 1.9;">
+                <li><b>استخلاص الخصائص (Feature Extraction):</b> استخراج 25 إشارة هيكلية وإحصائية ولغوية من الرابط.</li>
+                <li><b>التحقق الشبكي (Network & SSL Intelligence):</b> فحص شهادة التشفير وعمر النطاق عبر WHOIS.</li>
+                <li><b>كاشف الانتحال (Spoofing Detector):</b> قياس المسافة النصية لكشف محاولات تقليد النطاقات الرسمية.</li>
+                <li><b>التصنيف الهجين (Hybrid ML Classification):</b> تمرير المتجهات إلى نموذج RandomForest المدرب.</li>
+                <li><b>التفسير الموزون (Weighted Explainability):</b> إصدار الحكم النهائي مع جدول تفصيلي للأوزان والأسباب.</li>
               </ol>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
     with col2:
-        st.markdown("## بيانات المشروع والهوية الأكاديمية")
+        st.markdown("## 🏛️ البطاقة التعريفية للمشروع")
         st.markdown(
             f"""
-            <div class="card-soft">
-              <div><b>الجامعة:</b> جامعة بيشة</div>
+            <div class="card-soft" style="line-height: 2;">
+              <div><b>الجامعة:</b> جامعة بيشة (University of Bisha)</div>
               <div><b>الكلية:</b> كلية الحاسبات وتقنية المعلومات</div>
-              <div><b>القسم:</b> قسم الأمن السيبراني</div>
+              <div><b>القسم العلمي:</b> قسم الأمن السيبراني (Cybersecurity)</div>
               <div class="hr"></div>
-              <div><b>الطالب:</b> {st.session_state.get('student_name','')}</div>
-              <div><b>الرقم الجامعي:</b> {st.session_state.get('student_id','')}</div>
-              <div><b>المشرف:</b> {st.session_state.get('supervisor_name','')}</div>
-              <div><b>العام الجامعي:</b> {st.session_state.get('academic_year','')}</div>
+              <div><b>إعداد الباحث:</b> {st.session_state.get('student_name','')}</div>
+              <div><b>الرقم الجامعي:</b> <span class="mono">{st.session_state.get('student_id','')}</span></div>
+              <div><b>إشراف:</b> {st.session_state.get('supervisor_name','')}</div>
+              <div><b>العام الجامعي:</b> <span class="mono">{st.session_state.get('academic_year','')}</span></div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown("## مكونات النظام")
+        st.markdown("## 🧩 المكونات البرمجية للنظام")
         st.markdown(
             """
             <div class="card-soft">
-              <ul class="muted small">
-                <li><b>Core Analyzer:</b> استخراج الخصائص + WHOIS/SSL + Explainable reasons</li>
-                <li><b>ML Engine:</b> تدريب/حفظ نموذج RandomForest + Metrics</li>
-                <li><b>Streamlit UI:</b> 5 قوائم + Day/Night + الرسوم والتاريخ</li>
+              <ul class="muted small" style="line-height: 1.9;">
+                <li><b>Core Analyzer (`core/analyzer.py`):</b> محرك تحليل الروابط واستخراج الـ 25 خاصية وفحص WHOIS/SSL وبناء التفسيرات.</li>
+                <li><b>ML Engine (`model/ml_engine.py`):</b> إدارة تدريب نموذج الغابات العشوائية (RandomForest) وحساب مقاييس الأداء الأكاديمية.</li>
+                <li><b>Interactive UI (`app.py`):</b> واجهة تفاعلية ثنائية النمط (الأكاديمي النهاري / مركز العمليات الليلي SOC) مدعومة بلوحات قياس Plotly.</li>
               </ul>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        st.markdown("## ملاحظة حول التشغيل في Streamlit Cloud")
-        st.markdown(
-            """
-            <div class="card-soft">
-              <div class="muted small">
-              تم تصميم الاستعلامات الخارجية (WHOIS/SSL) بحيث لا تتسبب بتوقف النظام عند فشل الشبكة.
-              في حال تعذر WHOIS، يتم الاعتماد على Features نصية/لغوية والنموذج المدرب.
-              </div>
             </div>
             """,
             unsafe_allow_html=True,
