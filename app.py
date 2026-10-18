@@ -1113,25 +1113,23 @@ elif nav == "🎓 Project Overview & Documentation":
             """,
             unsafe_allow_html=True,
         )
-
-    with col2:
+with col2:
         st.markdown("## 🏛️ البطاقة التعريفية للمشروع")
         st.markdown(
-            f"""
+            """
             <div class="card-soft" style="line-height: 2;">
               <div><b>الجامعة:</b> جامعة بيشة (University of Bisha)</div>
               <div><b>الكلية:</b> كلية الحاسبات وتقنية المعلومات</div>
               <div><b>القسم العلمي:</b> قسم الأمن السيبراني (Cybersecurity)</div>
               <div class="hr"></div>
-              <div><b>إعداد الباحث:</b> {st.session_state.get('student_name','')}</div>
-              <div><b>الرقم الجامعي:</b> <span class="mono">{st.session_state.get('student_id','')}</span></div>
-              <div><b>إشراف:</b> {st.session_state.get('supervisor_name','')}</div>
-              <div><b>العام الجامعي:</b> <span class="mono">{st.session_state.get('academic_year','')}</span></div>
+              <div><b>إعداد الباحث:</b> م/ عبدالرحمن ماجد آل حامد</div>
+              <div><b>الرقم الجامعي:</b> <span class="mono">447807111</span></div>
+              <div><b>إشراف:</b> د. منير عبدالله القباطي</div>
+              <div><b>العام الجامعي:</b> <span class="mono">2026 / 2025</span></div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """, 
+            unsafe_allow_html=True
         )
-
         st.markdown("## 🧩 المكونات البرمجية للنظام")
         st.markdown(
             """
