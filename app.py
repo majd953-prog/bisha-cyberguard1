@@ -35,7 +35,7 @@ st.set_page_config(
 # Session state init
 # -----------------------------
 if "theme" not in st.session_state:
-    st.session_state["theme"] = "dark"  # default SOC Dark Mode
+    st.session_state["theme"] = "light"  # default: Academic Light (بني غامق للأزرار)
 
 if "session_history" not in st.session_state:
     st.session_history = []
@@ -58,6 +58,10 @@ INK = "#0F172A"
 PLOTLY_DARK_TEMPLATE = "plotly_dark"
 PLOTLY_LIGHT_TEMPLATE = "plotly_white"
 
+# COCO Brown (Bisha-inspired) for Light mode buttons
+COCO_BROWN = "#3B1F14"
+COCO_BROWN_2 = "#2B140E"
+
 
 def apply_theme(theme: str):
     st.session_state["theme"] = theme
@@ -73,6 +77,10 @@ def apply_theme(theme: str):
         neon = NEON
         neon2 = NEON_2
         plot_template = PLOTLY_DARK_TEMPLATE
+
+        # keep your original dark-mode button gradient
+        button_bg_css = "linear-gradient(90deg, rgba(0,229,255,0.15), rgba(212,175,55,0.10))"
+
     else:
         bg = LIGHT_BG
         fg = "#0B1220"
@@ -84,6 +92,9 @@ def apply_theme(theme: str):
         neon = "#0B3D6B"
         neon2 = "#0F766E"
         plot_template = PLOTLY_LIGHT_TEMPLATE
+
+        # make Light mode buttons dark brown (طلبك)
+        button_bg_css = f"linear-gradient(90deg, {COCO_BROWN}, {COCO_BROWN_2})"
 
     css = f"""
     <style>
@@ -117,7 +128,7 @@ def apply_theme(theme: str):
       }}
       .stButton>button {{
         border: 1px solid {border} !important;
-        background: linear-gradient(90deg, rgba(0,229,255,0.15), rgba(212,175,55,0.10)) !important;
+        background: {button_bg_css} !important;
         color: {fg} !important;
       }}
       .stTextInput>div>div>input {{
@@ -266,9 +277,11 @@ with toggle_col1:
     theme_label = "🌙 SOC Dark" if st.session_state["theme"] == "dark" else "☀️ Academic Light"
 
 with toggle_col2:
-    # Use a Streamlit button-like toggle
     new_theme = "light" if st.session_state["theme"] == "dark" else "dark"
-    if st.button(f"Switch to {'Academic Light Mode' if st.session_state['theme']=='dark' else 'SOC Dark Mode'}", use_container_width=True):
+    if st.button(
+        f"Switch to {'Academic Light Mode' if st.session_state['theme']=='dark' else 'SOC Dark Mode'}",
+        use_container_width=True
+    ):
         apply_theme(new_theme)
         st.rerun()
 
@@ -512,7 +525,6 @@ if nav == "🔍 Live URL Threat Scanner":
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
                 st.markdown("### Feature Snapshot (Top Signals)")
-                # Take top by weight and show corresponding features if available
                 weighted = sorted(reasons, key=lambda x: x.get("weight", 0), reverse=True)[:6]
                 top_rows = []
                 for r in weighted:
@@ -527,12 +539,10 @@ if nav == "🔍 Live URL Threat Scanner":
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
                 st.markdown("### Extracted 25 Features (Preview)")
                 feat_df = pd.DataFrame([features])
-                # display first 12 columns preview for readability
                 cols = list(feat_df.columns)
                 show_cols = cols[:18]
                 st.dataframe(feat_df[show_cols], height=220, use_container_width=True)
 
-            # Save to session history
             entry = {
                 "timestamp": datetime.utcnow().isoformat(),
                 "url": url_to_scan,
@@ -557,7 +567,6 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
         df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
         df["url_host"] = df["url"].apply(lambda x: analyzer.extract_domain(x).get("domain", "") if x else "")
 
-        # Severity counts
         sev_order = ["Critical Block", "High", "Medium", "Low", "Safe"]
         sev_counts = df["severity"].value_counts().to_dict()
         total = len(df)
@@ -581,15 +590,26 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
         critical_count = blocked_count
 
         with kpi_col1:
-            st.markdown('<div class="card-soft"><div class="muted small">Total Scanned</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(total), unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card-soft"><div class="muted small">Total Scanned</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(total),
+                unsafe_allow_html=True
+            )
         with kpi_col2:
-            st.markdown('<div class="card-soft"><div class="muted small">Blocked</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(blocked_count), unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card-soft"><div class="muted small">Blocked</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(blocked_count),
+                unsafe_allow_html=True
+            )
         with kpi_col3:
-            st.markdown('<div class="card-soft"><div class="muted small">Avg Threat %</div><div style="font-size:2rem; font-weight:900;">{:.1f}%</div></div>'.format(avg_threat), unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card-soft"><div class="muted small">Avg Threat %</div><div style="font-size:2rem; font-weight:900;">{:.1f}%</div></div>'.format(avg_threat),
+                unsafe_allow_html=True
+            )
         with kpi_col4:
-            st.markdown('<div class="card-soft"><div class="muted small">Critical Threats</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(critical_count), unsafe_allow_html=True)
+            st.markdown(
+                '<div class="card-soft"><div class="muted small">Critical Threats</div><div style="font-size:2rem; font-weight:900;">{}</div></div>'.format(critical_count),
+                unsafe_allow_html=True
+            )
 
-        # Pie distribution by severity
         pie_df = pd.DataFrame({"severity": df["severity"].value_counts().index, "count": df["severity"].value_counts().values})
         pie_df["severity"] = pd.Categorical(pie_df["severity"], categories=sev_order, ordered=True)
         pie_df = pie_df.sort_values("severity")
@@ -614,13 +634,11 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
             fig.update_layout(template=plot_template, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
             st.plotly_chart(fig, use_container_width=True)
 
-        # Average threat gauge
         with p2:
             st.markdown("### Threat Level Summary (Avg)")
             avg_fig = plot_threat_gauge(avg_threat, "Medium" if avg_threat < 40 else "High" if avg_threat < 70 else "Critical Block")
             st.plotly_chart(avg_fig, use_container_width=True)
 
-        # Reasons frequency
         reason_list = []
         for r in df["reasons"]:
             for item in (r or []):
@@ -650,7 +668,6 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
 
         with c2:
             st.markdown("### Domain Age Trend (Malicious vs Safe)")
-            # Estimate age from features if available
             if "features" in df.columns:
                 ages = []
                 labels = []
@@ -661,14 +678,11 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
                     if age_days is None:
                         continue
                     ages.append(float(age_days))
-                    labels.append(item.get("label_hint", ""))  # not always present
+                    labels.append(item.get("label_hint", ""))
+
                 if len(ages) < 2:
                     st.info("لا توجد أعمار نطاق كافية في سجل الجلسة.")
                 else:
-                    plot_df = pd.DataFrame({"age_days": ages, "idx": range(len(ages))})
-                    # split by severity
-                    sev_for_plot = df["severity"].tolist()
-                    # just scatter with threshold
                     fig = px.scatter(
                         df,
                         x="threat_pct",
@@ -700,7 +714,10 @@ elif nav == "📊 Threat Intelligence & Statistics Dashboard":
             fdf = df.copy()
             if q.strip():
                 q_lower = q.strip().lower()
-                fdf = fdf[fdf["url"].astype(str).str.lower().str.contains(q_lower) | fdf["url_host"].astype(str).str.lower().str.contains(q_lower)]
+                fdf = fdf[
+                    fdf["url"].astype(str).str.lower().str.contains(q_lower)
+                    | fdf["url_host"].astype(str).str.lower().str.contains(q_lower)
+                ]
             fdf = fdf[fdf["severity"].isin(sev_filter)]
             fdf = fdf[fdf["threat_pct"] >= min_threat]
 
@@ -726,7 +743,6 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
 
             decode_btn = st.button("Decode & Scan", use_container_width=True)
             if decode_btn:
-                # QR decoding with OpenCV + pyzbar
                 try:
                     import cv2
                     from pyzbar.pyzbar import decode as zbar_decode
@@ -776,14 +792,12 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
             df_in = pd.read_csv(csv_file)
             st.write(df_in.head(5))
 
-            # Find URL column
             url_col = None
             for c in df_in.columns:
                 if c.strip().lower() in ["url", "uri", "link", "href", "destination", "malicious_url"]:
                     url_col = c
                     break
             if url_col is None:
-                # fallback: first column
                 url_col = df_in.columns[0]
 
             st.info(f"Using URL column: <b>{url_col}</b>", unsafe_allow_html=True)
@@ -849,7 +863,6 @@ elif nav == "📱 Quishing QR & Bulk CSV Scanner":
 
                 st.dataframe(df_out, use_container_width=True, height=380)
 
-                # Download CSV
                 out_buf = io.StringIO()
                 df_out.to_csv(out_buf, index=False)
                 st.download_button(
@@ -865,7 +878,6 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
     st.caption("Confusion Matrix, ROC-AUC, and Feature Importance for the trained RandomForest model.")
 
     metrics = ml_engine.get_metrics()
-    # metrics must be ready after ensure_model_exists and training
     if not metrics:
         st.warning("Model metrics غير متاحة حالياً.")
     else:
@@ -874,14 +886,17 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
             st.markdown("### Model Performance Metrics")
             mt = metrics.get("report", {})
             if mt:
-                st.markdown(f"""
+                st.markdown(
+                    f"""
                 <div class="card-soft">
                   <div><b>Accuracy:</b> {mt.get('accuracy', 'N/A')}</div>
                   <div><b>Precision:</b> {mt.get('precision', 'N/A')}</div>
                   <div><b>Recall:</b> {mt.get('recall', 'N/A')}</div>
                   <div><b>F1-Score:</b> {mt.get('f1', 'N/A')}</div>
                 </div>
-                """, unsafe_allow_html=True)
+                """,
+                    unsafe_allow_html=True,
+                )
 
             st.markdown("### ROC-AUC")
             st.plotly_chart(metrics.get("roc_fig"), use_container_width=True)
@@ -895,7 +910,6 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
             if fi_df is None or fi_df.empty:
                 st.info("No feature importance available.")
             else:
-                # show top 15
                 fi_df = fi_df.sort_values("importance", ascending=False).head(15)
                 st.dataframe(fi_df, use_container_width=True, height=260)
 
@@ -921,7 +935,7 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
             </div>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
         st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
@@ -939,7 +953,7 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
               </ul>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
 elif nav == "🎓 Project Overview & Documentation":
@@ -996,7 +1010,7 @@ elif nav == "🎓 Project Overview & Documentation":
               <div><b>العام الجامعي:</b> {st.session_state.get('academic_year','')}</div>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
         st.markdown("## مكونات النظام")
@@ -1010,7 +1024,7 @@ elif nav == "🎓 Project Overview & Documentation":
               </ul>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
         st.markdown("## ملاحظة حول التشغيل في Streamlit Cloud")
@@ -1023,5 +1037,5 @@ elif nav == "🎓 Project Overview & Documentation":
               </div>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
