@@ -679,7 +679,7 @@ if nav == "🔍 Live URL Threat Scanner":
         st.markdown("</div>", unsafe_allow_html=True)
         st.markdown('<div class="card-soft">', unsafe_allow_html=True)
     st.markdown("### 🧠 التفسير الذكي للقرار (Explainable AI Reasons)")
-    reasons = explain.get("reasons", [])
+    reasons = explain.get("reasons", []) if 'explain' in locals() and isinstance(explain, dict) else []
     if not reasons:
         st.info("لم يتم رصد مؤشرات خطورة عالية في القواعد التفسيرية؛ الرابط يبدو آمناً.")
     else:
