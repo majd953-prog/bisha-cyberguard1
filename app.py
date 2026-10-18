@@ -648,59 +648,57 @@ if nav == "🔍 Live URL Threat Scanner":
             if age_warning:
                 st.markdown('<div class="card-accent critical" style="padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
 st.markdown("**⚠️ تنبيه أمني:**")
-                if whois_status == "unavailable":
-                    st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
-                if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
-                    st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
-                st.markdown("</div>", unsafe_allow_html=True)            
-                
-                st.markdown(f"""
-                    <div class="mono small" style="line-height: 1.8;">
-                        <div><b>Domain:</b> {domain}</div>
-                        <div><b>WHOIS Status:</b> {whois_status}</div>
-                        <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
-                        <div><b>Age:</b> {whois_info.get('age_years', 'N/A')} ({domain_age_days if domain_age_days is not None else "N/A"} يومًا)</div>
-                        <div><b>Registrar:</b> {registrar or "N/A"}</div>
-                        <div><b>SSL/TLS:</b> {ssl_status}</div>
-                        <div><b>Issuer:</b> {ssl_issuer or "N/A"}</div>
-                        <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
-                    </div>
-                """, unsafe_allow_html=True)
+        if whois_status == "unavailable":
+            st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
+        if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
+            st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-                st.markdown("</div>", unsafe_allow_html=True)
-            with dec_col2:
-                st.markdown('<div class="card-soft">', unsafe_allow_html=True)
-                st.markdown("### 🧠 التفسير الذكي للقرار (Explainable AI Reasons)")
-                reasons = explain.get("reasons", [])
-                if not reasons:
+        st.markdown(f"""
+            <div class="mono small" style="line-height: 1.8;">
+                <div><b>Domain:</b> {domain}</div>
+                <div><b>WHOIS Status:</b> {whois_status}</div>
+                <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
+                <div><b>Age:</b> {whois_info.get('age_years', 'N/A')}</div>
+                <div><b>Registrar:</b> {registrar or "N/A"}</div>
+                <div><b>SSL/TLS:</b> {ssl_status}</div>
+                <div><b>Issuer:</b> {ssl_issuer or "N/A"}</div>
+                <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('<div class="card-soft">', unsafe_allow_html=True)
+        st.markdown("### 🧠 التفسير الذكي للقرار (Explainable AI Reasons)")
+        reasons = explain.get("reasons", [])
+        if not reasons:
                     st.info("لم يتم رصد مؤشرات خطورة عالية في القواعد التفسيرية؛ الرابط يبدو آمناً.")
-                else:
+        else:
                     df = compute_reason_table(reasons)
                     st.dataframe(df, use_container_width=True, height=240)
 
-                st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-                st.markdown("### 📌 أبرز الإشارات المؤثرة (Feature Snapshot)")
-                weighted = sorted(reasons, key=lambda x: x.get("weight", 0), reverse=True)[:6]
-                top_rows = []
-                for r in weighted:
+        st.markdown("### 📌 أبرز الإشارات المؤثرة (Feature Snapshot)")
+        weighted = sorted(reasons, key=lambda x: x.get("weight", 0), reverse=True)[:6]
+        top_rows = []
+        for r in weighted:
                     key = r.get("feature_key")
                     if key and features and key in features:
                         top_rows.append((key, features[key], r.get("reason")))
-                if not top_rows:
+        if not top_rows:
                     top_rows = [("Safe_Profile", "Verified", "لا توجد إشارات خبيثة مهيمنة")]
-                for k, v, reason in top_rows:
+        for k, v, reason in top_rows:
                     st.markdown(f"- <span class='mono'>{k}</span>: <b>{v}</b> — {reason}", unsafe_allow_html=True)
 
-                st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-                st.markdown("### 🔬 مصفوفة الخصائص الـ 25 المستخرجة (25 Features Preview)")
-                feat_df = pd.DataFrame([features])
-                cols = list(feat_df.columns)
-                show_cols = cols[:18]
-                st.dataframe(feat_df[show_cols], height=200, use_container_width=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+        st.markdown("### 🔬 مصفوفة الخصائص الـ 25 المستخرجة (25 Features Preview)")
+        feat_df = pd.DataFrame([features])
+        cols = list(feat_df.columns)
+        show_cols = cols[:18]
+        st.dataframe(feat_df[show_cols], height=200, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            entry = {
+        entry = {
                 "timestamp": datetime.utcnow().isoformat(),
                 "url": url_to_scan,
                 "threat_pct": float(threat_pct),
@@ -708,8 +706,8 @@ st.markdown("**⚠️ تنبيه أمني:**")
                 "reasons": explain.get("reasons", []),
                 "features": features,
             }
-            add_history(entry)
-            st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
+        add_history(entry)
+        st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
 
 elif nav == "📊 Threat Intelligence & Statistics Dashboard":
     st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
