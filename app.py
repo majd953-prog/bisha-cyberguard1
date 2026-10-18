@@ -344,36 +344,29 @@ plot_template, FG, MUTED, NEON_COLOR, NEON2_COLOR, GOLD_COLOR = apply_theme(st.s
 # Sidebar: Academic Identity Card & Navigation
 # -----------------------------
 with st.sidebar:
-    # بطاقة الهوية الأكاديمية الثابتة والاحترافية
+    # بطاقة الهوية الأكاديمية الثابتة والرسومية
     st.markdown(
-        f"""
+        """
         <div class="academic-id-card">
           <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
           <div class="dept-title">كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
-          <div class="student-name">🎓 {st.session_state["student_name"]}</div>
+          <div class="student-name">🎓 م/ عبدالرحمن ماجد آل حامد</div>
           <div class="meta-row">
             <span class="meta-label">الرقم الجامعي:</span>
-            <span class="mono">{st.session_state["student_id"]}</span>
+            <span class="mono">447807111</span>
           </div>
           <div class="meta-row">
             <span class="meta-label">إشراف:</span>
-            <span>{st.session_state["supervisor_name"]}</span>
+            <span>د. منير عبدالله القباطي</span>
           </div>
           <div class="meta-row">
             <span class="meta-label">العام الجامعي:</span>
-            <span class="mono">{st.session_state["academic_year"]}</span>
+            <span class="mono">2026 / 2025</span>
           </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
-    # قائمة منسدلة مخفية لتعديل بيانات الإشراف عند الحاجة فقط
-    with st.expander("⚙️ تعديل بيانات الإشراف والبطاقة"):
-        st.text_input("اسم الباحث", key="student_name")
-        st.text_input("الرقم الجامعي", key="student_id")
-        st.text_input("اسم الدكتور المشرف", key="supervisor_name")
-        st.text_input("العام الجامعي", key="academic_year")
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
     st.markdown("<div style='font-weight: 700; margin-bottom: 8px;'>🧭 أقسام المنصة (Navigation)</div>", unsafe_allow_html=True)
@@ -391,7 +384,7 @@ with st.sidebar:
         "🎓 Project Overview & Documentation": "🎓 التوثيق الأكاديمي للمشروع"
     }
 
-    # رسم الأزرار الفعلية بدلاً من دوائر الاختيار
+    # رسم الأزرار الفعلية للتنقل
     for key, label in nav_options.items():
         is_active = st.session_state["nav_section"] == key
         btn_type = "primary" if is_active else "secondary"
