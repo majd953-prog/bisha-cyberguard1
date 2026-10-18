@@ -665,7 +665,7 @@ st.markdown(f"""
         <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
     </div>
 """, unsafe_allow_html=True)
-                )
+)
                 st.markdown("</div>", unsafe_allow_html=True)
 
             with dec_col2:
