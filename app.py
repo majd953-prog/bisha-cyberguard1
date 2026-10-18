@@ -1073,7 +1073,7 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
               H(X) = - Σ P(x_i) * log2 P(x_i)
               </div>
               <div class="muted small">
-              حيث تمثل <b>P(x_i)</b> احتمالية تكرار الحرف أو الرمز داخل نص الرابط، ويتم دمج هذا المؤشر مع 24 خاصية أخرى داخل مصنف <b>RandomForestClassifier</b>.
+          st.markdown("حيث تمثل <b>P(x_i)</b> احتمالية تكرار الحرف أو الرمز داخل نص الرابط، ويتم دمج هذا المؤشر مع 24 خاصية أخرى داخل مصنف <b>RandomForestClassifier</b>.")
               </div>
             </div>
             """,
