@@ -647,27 +647,27 @@ if nav == "🔍 Live URL Threat Scanner":
 
             if age_warning:
                 st.markdown('<div class="card-accent critical" style="padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
-                st.markdown("**⚠️ تنبيه أمني:**")
+st.markdown("**⚠️ تنبيه أمني:**")
                 if whois_status == "unavailable":
                     st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
                 if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
                     st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
-                st.markdown("</div>", unsafe_allow_html=True)           
-st.markdown(f"""
-    <div class="mono small" style="line-height: 1.8;">
-        <div><b>Domain:</b> {domain}</div>
-        <div><b>WHOIS Status:</b> {whois_status}</div>
-        <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
-        <div><b>Age:</b> {whois_info.get('age_years', 'N/A')} ({domain_age_days if domain_age_days is not None else "N/A"} يومًا)</div>
-        <div><b>Registrar:</b> {registrar or "N/A"}</div>
-        <div><b>SSL/TLS:</b> {ssl_status}</div>
-        <div><b>Issuer:</b> {ssl_issuer or "N/A"}</div>
-        <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
-    </div>
-""", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)            
+                
+                st.markdown(f"""
+                    <div class="mono small" style="line-height: 1.8;">
+                        <div><b>Domain:</b> {domain}</div>
+                        <div><b>WHOIS Status:</b> {whois_status}</div>
+                        <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
+                        <div><b>Age:</b> {whois_info.get('age_years', 'N/A')} ({domain_age_days if domain_age_days is not None else "N/A"} يومًا)</div>
+                        <div><b>Registrar:</b> {registrar or "N/A"}</div>
+                        <div><b>SSL/TLS:</b> {ssl_status}</div>
+                        <div><b>Issuer:</b> {ssl_issuer or "N/A"}</div>
+                        <div><b>Cert Not After:</b> {ssl_not_after or "N/A"}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
                 st.markdown("</div>", unsafe_allow_html=True)
-
             with dec_col2:
                 st.markdown('<div class="card-soft">', unsafe_allow_html=True)
                 st.markdown("### 🧠 التفسير الذكي للقرار (Explainable AI Reasons)")
