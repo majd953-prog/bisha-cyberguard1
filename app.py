@@ -595,10 +595,10 @@ if nav == "🔍 Live URL Threat Scanner":
         url_to_scan = normalize_url(url_input)
         st.session_state["url_to_scan"] = url_to_scan
 
-if not url_to_scan:
-            st.warning("يرجى إدخال رابط صحيح.")
-        else:
-            # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
+            if not url_to_scan:
+                st.warning("يرجى إدخال رابط صحيح.")
+ else:
+                # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
             whois_info = artifacts.get("whois", {})
             domain_info = artifacts.get("domain_info", {})
             ssl_info = artifacts.get("ssl", {})
