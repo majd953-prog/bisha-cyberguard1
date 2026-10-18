@@ -702,11 +702,14 @@ if nav == "🔍 Live URL Threat Scanner":
 
      st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
      st.markdown("### 🔬 مصفوفة الخصائص الـ 25 المستخرجة (25 Features Preview)")
-     feat_df = pd.DataFrame([features])
-     cols = list(feat_df.columns)
-     show_cols = cols[:18]
+     safe_features = features if 'features' in locals() and isinstance(features, dict) and features else {}
+if safe_features:
+    feat_df = pd.DataFrame([safe_features])
+    cols = list(feat_df.columns)
+    show_cols = cols[:18]
     st.dataframe(feat_df[show_cols], height=200, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+else:
+    st.info("لا توجد مصفوفة خصائص مستخرجة حالياً.")
 
     entry = {
                 "timestamp": datetime.utcnow().isoformat(),
