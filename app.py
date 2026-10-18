@@ -606,19 +606,20 @@ if nav == "🔍 Live URL Threat Scanner":
 
             st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
             dec_col1, dec_col2 = st.columns([1.35, 1.65])
-
-            with dec_col1:
+with dec_col1:
                 st.markdown('<div class="card-soft">', unsafe_allow_html=True)
                 st.markdown("### 🎯 مؤشر الخطورة (Threat Score)")
-                st.plotly_chart(plot_threat_gauge(threat_pct, severity), use_container_width=True)
+                
+                # ضبط نسبة مؤشر الخطورة لتتطابق منطقياً مع حالة الأمان
+                display_threat_pct = 5.0 if str(severity).lower() in ["safe", "آمن"] else threat_pct
+                
+                st.plotly_chart(plot_threat_gauge(display_threat_pct, severity), use_container_width=True)
 
                 st.markdown("### 🛡️ مستوى التهديد (Risk Level)")
                 st.markdown(severity_badge(severity), unsafe_allow_html=True)
 
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-                st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")
-
-                whois_info = artifacts.get("whois", {})
+                st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")                whois_info = artifacts.get("whois", {})
                 ssl_info = artifacts.get("ssl", {})
                 domain_info = artifacts.get("domain", {})
 
