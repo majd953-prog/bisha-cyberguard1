@@ -652,7 +652,8 @@ if nav == "🔍 Live URL Threat Scanner":
                     st.markdown("- تعذر التحقق المباشر من سجلات WHOIS (تم تفعيل التحليل الاحتياطي Fallback).")
                 if isinstance(domain_age_days, (int, float)) and domain_age_days < 30:
                     st.markdown(f"- عمر النطاق حديث جداً: **{int(domain_age_days)} يوم** (< 30 يوماً).")
-                st.markdown("</div>", unsafe_allow_html=True)                    <div class="mono small" style="line-height: 1.8;">
+                st.markdown("</div>", unsafe_allow_html=True)           
+                st.markdown('<div class="mono small" style="line-height: 1.8;">', unsafe_allow_html=True)
                     <div><b>Domain:</b> {domain}</div>
                     <div><b>WHOIS Status:</b> {whois_status}</div>
                     <div><b>Registration Date:</b> {reg_date or "N/A"}</div>
