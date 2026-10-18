@@ -1070,7 +1070,7 @@ elif nav == "🏛️ Academic Metrics & ML Architecture":
               تُستخدم لقياس درجة تعقيد وعشوائية الحروف داخل النطاق والرابط (حيث تميل روابط التصيد المولدة آلياً DGA إلى امتلاك إنتروبيا مرتفعة). وتُحسب رياضياً عبر المعادلة:
               </div>
               <div class="mono" style="margin:12px 0; padding:10px; background:rgba(212,175,55,0.1); border-radius:8px; text-align:center; font-weight:700;">
-              H(X) = - Σ P(x_i) * log₂ P(x_i)
+              H(X) = - Σ P(x_i) * log2 P(x_i)
               </div>
               <div class="muted small">
               حيث تمثل <b>P(x_i)</b> احتمالية تكرار الحرف أو الرمز داخل نص الرابط، ويتم دمج هذا المؤشر مع 24 خاصية أخرى داخل مصنف <b>RandomForestClassifier</b>.
