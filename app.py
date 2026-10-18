@@ -597,7 +597,7 @@ if nav == "🔍 Live URL Threat Scanner":
 
     if not url_to_scan:
         st.warning("يرجى إدخال رابط صحيح.")
- else:
+    else:
                 # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
             whois_info = artifacts.get("whois", {})
             domain_info = artifacts.get("domain_info", {})
