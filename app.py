@@ -591,7 +591,7 @@ if nav == "🔍 Live URL Threat Scanner":
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-   if scan_btn or ("url_to_scan" in st.session_state and url_input):
+    if scan_btn or ("url_to_scan" in st.session_state and url_input):
         url_to_scan = normalize_url(url_input)
         st.session_state["url_to_scan"] = url_to_scan
 
