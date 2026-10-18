@@ -604,7 +604,8 @@ if nav == "🔍 Live URL Threat Scanner":
                     ml_engine=ml_engine,
                 )
 
-            st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)dec_col1, dec_col2 = st.columns(2)
+            st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+dec_col1, dec_col2 = st.columns(2)
 
             with dec_col1:
                 st.markdown('<div class="card-soft">', unsafe_allow_html=True)
