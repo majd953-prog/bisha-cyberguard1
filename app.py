@@ -604,9 +604,9 @@ if nav == "🔍 Live URL Threat Scanner":
                     ml_engine=ml_engine,
                 )
 
-            st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
-            dec_col1, dec_col2 = st.columns([1.35, 1.65])
-with dec_col1:
+            st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)dec_col1, dec_col2 = st.columns(2)
+
+            with dec_col1:
                 st.markdown('<div class="card-soft">', unsafe_allow_html=True)
                 st.markdown("### 🎯 مؤشر الخطورة (Threat Score)")
                 
@@ -620,6 +620,7 @@ with dec_col1:
                 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
                 st.markdown("### 🌐 استخبارات النطاق وشهادة الأمان (WHOIS & SSL)")
                 whois_info = artifacts.get("whois", {})
+                st.markdown('</div>', unsafe_allow_html=True)
 
             with dec_col2:
                 st.markdown('<div class="card-soft">', unsafe_allow_html=True)
