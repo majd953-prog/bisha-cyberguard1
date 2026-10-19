@@ -600,13 +600,12 @@ if nav == "🔍 Live URL Threat Scanner":
         else:
             with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
                 # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
-               target_engine = ml_engine if 'ml_engine' in locals() or 'ml_engine' in globals() else (engine if 'engine' in locals() or 'engine' in globals() else getattr(analyzer, 'ml_engine', None))
-               result = analyzer.analyze_url_with_explanations(url_to_scan, target_engine)
-               artifacts = result.get("artifacts", {})
-               explain = result.get("explain", {})
-               threat_pct = result.get("threat_pct", 0.0)
-               severity = result.get("severity", "Safe")
-               features = result.get("features", {})
+                result = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
+                artifacts = result.get("artifacts", {})
+                explain = result.get("explain", {})
+                threat_pct = result.get("threat_pct", 0.0)
+                severity = result.get("severity", "Safe")
+                features = result.get("features", {})
 
             # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
             whois_info = artifacts.get("whois", {})
