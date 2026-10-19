@@ -718,7 +718,7 @@ if nav == "🔍 Live URL Threat Scanner":
         }
         add_history(entry)
         st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
-    elif nav == "📊 Threat Intelligence & Statistics Dashboard":
+    elif "Threat Intelligence" in str(nav) or "استخبارات" in str(nav):
         st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
         st.caption("تحليلات الجلسة المباشرة، مؤشرات الأداء الرئيسية (KPIs)، وسجل الفحص القابل للبحث والفلترة.")
 
