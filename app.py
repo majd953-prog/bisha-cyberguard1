@@ -719,88 +719,98 @@ if nav == "🔍 Live URL Threat Scanner":
         add_history(entry)
         st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
     elif nav == "📊 Threat Intelligence & Statistics Dashboard":
-     st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
-     st.caption("تحليلات الجلسة المباشرة، مؤشرات الأداء الرئيسية (KPIs)، وسجل الفحص القابل للبحث والفلترة.")
+        st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
+        st.caption("تحليلات الجلسة المباشرة، مؤشرات الأداء الرئيسية (KPIs)، وسجل الفحص القابل للبحث والفلترة.")
 
-    hist = st.session_state["session_history"]
-    if not hist:
-        st.info("لا توجد نتائج ضمن هذه الجلسة حتى الآن. انتقل لقسم Live URL Threat Scanner وافحص رابطاً أولاً.")
-    else:
-        df = pd.DataFrame(hist)
-        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
-        df["url_host"] = df["url"].apply(lambda x: analyzer.extract_domain(x).get("domain", "") if x else "")
+        hist = st.session_state.get("session_history", [])
+        if not hist:
+            st.info("لا توجد نتائج ضمن هذه الجلسة حتى الآن. انتقل لقسم Live URL Threat Scanner وافحص رابطاً أولاً.")
+        else:
+            df = pd.DataFrame(hist)
+            if "timestamp" in df.columns:
+                df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+            if "url" in df.columns:
+                df["url_host"] = df["url"].apply(lambda x: analyzer.extract_domain(x).get("domain", "") if x else "")
 
-        sev_order = ["Critical Block", "High", "Medium", "Low", "Safe"]
-        total = len(df)
+            sev_order = ["Critical Block", "High", "Medium", "Low", "Safe"]
+            total = len(df)
 
-        def sev_to_type(sev):
-            if sev == "Critical Block":
-                return "Malicious / Blocked (Critical)"
-            if sev == "High":
-                return "Suspicious (High)"
-            if sev == "Medium":
-                return "Suspicious (Medium)"
-            if sev == "Low":
-                return "Low-risk (Possible)"
-            return "Safe"
+            def sev_to_type(sev):
+                if sev == "Critical Block":
+                    return "Malicious / Blocked (Critical)"
+                if sev == "High":
+                    return "Suspicious (High)"
+                if sev == "Medium":
+                    return "Suspicious (Medium)"
+                if sev == "Low":
+                    return "Low-risk (Possible)"
+                return "Safe"
 
-        df["threat_type"] = df["severity"].apply(sev_to_type)
+            if "severity" in df.columns:
+                df["threat_type"] = df["severity"].apply(sev_to_type)
 
-        kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
-        blocked_count = sum(1 for s in df["severity"] if s == "Critical Block")
-        avg_threat = float(df["threat_pct"].mean())
-        critical_count = blocked_count
+            kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
+            blocked_count = sum(1 for s in df.get("severity", []) if s == "Critical Block")
+            avg_threat = float(df["threat_pct"].mean()) if "threat_pct" in df.columns and not df["threat_pct"].empty else 0.0
+            critical_count = blocked_count
 
-        with kpi_col1:
-            st.markdown(
-                f'<div class="card-soft"><div class="muted small">إجمالي الروابط المفحوصة</div><div style="font-size:2rem; font-weight:900;">{total}</div></div>',
-                unsafe_allow_html=True,
-            )
-        with kpi_col2:
-            st.markdown(
-                f'<div class="card-soft"><div class="muted small">روابط محظورة (Blocked)</div><div style="font-size:2rem; font-weight:900;">{blocked_count}</div></div>',
-                unsafe_allow_html=True,
-            )
-        with kpi_col3:
-            st.markdown(
-                f'<div class="card-soft"><div class="muted small">متوسط نسبة الخطورة</div><div style="font-size:2rem; font-weight:900;">{avg_threat:.1f}%</div></div>',
-                unsafe_allow_html=True,
-            )
-        with kpi_col4:
-            st.markdown(
-                f'<div class="card-soft"><div class="muted small">تهديدات حرجة (Critical)</div><div style="font-size:2rem; font-weight:900;">{critical_count}</div></div>',
-                unsafe_allow_html=True,
-            )
+            with kpi_col1:
+                st.markdown(
+                    f'<div class="card-soft"><div class="muted small">إجمالي الروابط المفحوصة</div><div style="font-size:2rem; font-weight:900;">{total}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            with kpi_col2:
+                st.markdown(
+                    f'<div class="card-soft"><div class="muted small">روابط محظورة (Blocked)</div><div style="font-size:2rem; font-weight:900;">{blocked_count}</div></div>',
+                    unsafe_allow_html=True,
+                )
+            with kpi_col3:
+                st.markdown(
+                    f'<div class="card-soft"><div class="muted small">متوسط نسبة الخطورة</div><div style="font-size:2rem; font-weight:900;">{avg_threat:.1f}%</div></div>',
+                    unsafe_allow_html=True,
+                )
+            with kpi_col4:
+                st.markdown(
+                    f'<div class="card-soft"><div class="muted small">تهديدات حرجة (Critical)</div><div style="font-size:2rem; font-weight:900;">{critical_count}</div></div>',
+                    unsafe_allow_html=True,
+                )
 
-        pie_df = pd.DataFrame({"severity": df["severity"].value_counts().index, "count": df["severity"].value_counts().values})
-        pie_df["severity"] = pd.Categorical(pie_df["severity"], categories=sev_order, ordered=True)
-        pie_df = pie_df.sort_values("severity")
+            if "severity" in df.columns and not df["severity"].empty:
+                val_counts = df["severity"].value_counts()
+                pie_df = pd.DataFrame({"severity": val_counts.index, "count": val_counts.values})
+                pie_df["severity"] = pd.Categorical(pie_df["severity"], categories=sev_order, ordered=True)
+                pie_df = pie_df.sort_values("severity")
 
-        p1, p2 = st.columns([1.25, 1.15])
-        with p1:
-            st.markdown("### توزيع مستويات الخطورة (Severity Distribution)")
-            fig = px.pie(
-                pie_df,
-                names="severity",
-                values="count",
-                hole=0.35,
-                color="severity",
-                color_discrete_map={
-                    "Safe": "#22C55E",
-                    "Low": "#00E5FF",
-                    "Medium": "#D4AF37",
-                    "High": "#F472B6",
-                    "Critical Block": "#FF0048",
-                },
-            )
-            fig.update_layout(template=plot_template, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig, use_container_width=True)
+                p1, p2 = st.columns([1.25, 1.15])
+                with p1:
+                    st.markdown("### توزيع مستويات الخطورة (Severity Distribution)")
+                    fig = px.pie(
+                        pie_df,
+                        names="severity",
+                        values="count",
+                        hole=0.35,
+                        color="severity",
+                        color_discrete_map={
+                            "Safe": "#22C55E",
+                            "Low": "#00E5FF",
+                            "Medium": "#D4AF37",
+                            "High": "#F472B6",
+                            "Critical Block": "#FF0048",
+                        },
+                    )
+                    fig.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
+                        margin=dict(l=10, r=10, t=20, b=10),
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
 
-        with p2:
-            st.markdown("### متوسط مستوى التهديد للجلسة")
-            avg_fig = plot_threat_gauge(avg_threat, "Medium" if avg_threat < 40 else "High" if avg_threat < 70 else "Critical Block")
-            st.plotly_chart(avg_fig, use_container_width=True)
-
+                with p2:
+                    st.markdown("### سجل الفحص الأخير (Recent Scans)")
+                    st.dataframe(
+                        df[["timestamp", "url", "severity", "threat_pct"]].tail(10),
+                        use_container_width=True,
+                    )
         reason_list = []
         for r in df["reasons"]:
             for item in (r or []):
