@@ -600,19 +600,7 @@ if nav == "🔍 Live URL Threat Scanner":
         else:
             with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
                 # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
-               if hasattr(analyzer, "analyze"):
-                 result = analyzer.analyze(url_to_scan)
-               elif hasattr(analyzer, "analyze_url"):
-                 result = analyzer.analyze_url(url_to_scan)
-               elif hasattr(analyzer, "predict"):
-                 result = analyzer.predict(url_to_scan)
-               elif hasattr(analyzer, "scan"):
-                 result = analyzer.scan(url_to_scan)
-               elif callable(analyzer):
-                 result = analyzer(url_to_scan)
-               else:
-                   st.error(f"الدوال المتاحة في الكلاس هي: {[m for m in dir(analyzer) if not m.startswith('_')]}")
-                   st.stop()
+               result = analyzer.analyze_url_with_explanations(url_to_scan)
                artifacts = result.get("artifacts", {})
                explain = result.get("explain", {})
                threat_pct = result.get("threat_pct", 0.0)
