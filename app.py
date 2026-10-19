@@ -600,8 +600,23 @@ if nav == "🔍 Live URL Threat Scanner":
         else:
             with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
                 # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
-                result = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
-                artifacts = result.get("artifacts", {})
+                raw_res = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
+                
+                # إذا كانت النتيجة tuple يتم استخراج القاموس الأساسي منها
+                if isinstance(raw_res, tuple):
+                    result = raw_res[0] if isinstance(raw_res[0], dict) else {}
+                    # إذا كان العنصر الثاني هو artifacts
+                    if len(raw_res) > 1 and isinstance(raw_res[1], dict):
+                        artifacts = raw_res[1]
+                    else:
+                        artifacts = result.get("artifacts", {})
+                elif isinstance(raw_res, dict):
+                    result = raw_res
+                    artifacts = result.get("artifacts", {})
+                else:
+                    result = {}
+                    artifacts = {}
+
                 explain = result.get("explain", {})
                 threat_pct = result.get("threat_pct", 0.0)
                 severity = result.get("severity", "Safe")
