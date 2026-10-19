@@ -601,7 +601,9 @@ if nav == "🔍 Live URL Threat Scanner":
             with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
                 # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
                 raw_res = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
-                
+                st.write("🔍 نوع الناتج:", type(raw_res))
+                st.write("📦 محتوى raw_res:", raw_res)
+                st.stop()
                 # إذا كانت النتيجة tuple يتم استخراج القاموس الأساسي منها
                 if isinstance(raw_res, tuple):
                     result = raw_res[0] if isinstance(raw_res[0], dict) else {}
