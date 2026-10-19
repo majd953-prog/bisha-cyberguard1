@@ -700,31 +700,32 @@ if nav == "🔍 Live URL Threat Scanner":
      for k, v, reason in top_rows:
                     st.markdown(f"- <span class='mono'>{k}</span>: <b>{v}</b> — {reason}", unsafe_allow_html=True)
 
-     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-     st.markdown("### 🔬 مصفوفة الخصائص الـ 25 المستخرجة (25 Features Preview)")
-     safe_features = features if 'features' in locals() and isinstance(features, dict) and features else {}
-if safe_features:
-    feat_df = pd.DataFrame([safe_features])
-    cols = list(feat_df.columns)
-    show_cols = cols[:18]
-    st.dataframe(feat_df[show_cols], height=200, use_container_width=True)
-else:
-    st.info("لا توجد مصفوفة خصائص مستخرجة حالياً.")
+    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+    st.markdown("### 📊 مصفوفة الخصائص الـ 25 المستخرجة (25 Features Preview)")
+    safe_features = features if 'features' in locals() and isinstance(features, dict) and features else {}
+    if safe_features:
+        feat_df = pd.DataFrame([safe_features])
+        cols = list(feat_df.columns)
+        show_cols = cols[:18]
+        st.dataframe(feat_df[show_cols], height=200, use_container_width=True)
+    else:
+        st.info("لا توجد مصفوفة خصائص مستخرجة حالياً.")
 
-    entry = {
-                "timestamp": datetime.utcnow().isoformat(),
-                "url": url_to_scan,
-                "threat_pct": float(threat_pct),
-                "severity": severity,
-                "reasons": explain.get("reasons", []),
-                "features": features,
-            }
-    add_history(entry)
-    st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
-
-elif nav == "📊 Threat Intelligence & Statistics Dashboard":
-    st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
-    st.caption("تحليلات الجلسة المباشرة، مؤشرات الأداء الرئيسية (KPIs)، وسجل الفحص القابل للبحث والفلترة.")
+    # حفظ السجل
+    if 'url_to_scan' in locals() and url_to_scan:
+        entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "url": url_to_scan,
+            "threat_pct": float(threat_pct) if 'threat_pct' in locals() else 0.0,
+            "severity": severity if 'severity' in locals() else "Safe",
+            "reasons": explain.get("reasons", []) if 'explain' in locals() and isinstance(explain, dict) else [],
+            "features": safe_features,
+        }
+        add_history(entry)
+        st.success("تم حفظ نتيجة الفحص ضمن سجل الجلسة بنجاح.")
+    elif nav == "📊 Threat Intelligence & Statistics Dashboard":
+     st.subheader("📊 لوحة استخبارات التهديدات والإحصائيات | Threat Intelligence Dashboard")
+     st.caption("تحليلات الجلسة المباشرة، مؤشرات الأداء الرئيسية (KPIs)، وسجل الفحص القابل للبحث والفلترة.")
 
     hist = st.session_state["session_history"]
     if not hist:
