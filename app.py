@@ -1097,7 +1097,7 @@ elif nav == "🎓 Project Overview & Documentation":
     st.subheader("🎓 التوثيق الأكاديمي ونظرة عامة على المشروع | Project Documentation")
     st.caption("الأهداف البحثية، المنهجية العلمية، ومعمارية النظام المطور في قسم الأمن السيبراني بجامعة بيشة.")
 
-  col1, col2 = st.columns([1.2, 1])
+    col1, col2 = st.columns([1.2, 1])
 
     with col1:
         st.markdown("## 🎯 أهداف المشروع البحثية")
