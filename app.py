@@ -600,7 +600,7 @@ if nav == "🔍 Live URL Threat Scanner":
         else:
             with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
                 # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
-               result = analyzer.analyze_url_with_explanations(url_to_scan)
+               result = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
                artifacts = result.get("artifacts", {})
                explain = result.get("explain", {})
                threat_pct = result.get("threat_pct", 0.0)
