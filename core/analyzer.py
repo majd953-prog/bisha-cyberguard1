@@ -23,7 +23,7 @@ def safe_to_str(x):
 
 class URLAnalyzer:
     def __init__(self):
-        # Saudi sensitive domains (base set)
+        # Target domains for typosquatting / homograph spoofing detection
         self.saudi_targets = [
             "ub.edu.sa",
             "absher.sa",
@@ -31,11 +31,16 @@ class URLAnalyzer:
             "nafath.sa",
             "mcs.gov.sa",
             "sdaia.gov.sa",
-            # Example banks (generic placeholders)
             "snb.com.sa",
             "alrajhibank.com.sa",
             "sabb.com.sa",
             "albilad.com",
+            # Global sensitive targets
+            "google.com",
+            "apple.com",
+            "microsoft.com",
+            "paypal.com",
+            "amazon.com",
         ]
 
         # 🟢 القائمة البيضاء للنطاقات الآمنة الرسمية (تستثنى تماماً من كاشف الانتحال وتعتبر آمنة)
@@ -49,7 +54,14 @@ class URLAnalyzer:
             "nafath.sa",
             "www.nafath.sa",
             "gov.sa",
-            "edu.sa"
+            "edu.sa",
+            # Global trusted domains
+            "google.com",
+            "www.google.com",
+            "apple.com",
+            "www.apple.com",
+            "microsoft.com",
+            "www.microsoft.com",
         ]
 
         # Common phishing char patterns
