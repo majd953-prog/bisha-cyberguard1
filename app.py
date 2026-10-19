@@ -600,33 +600,11 @@ if nav == "🔍 Live URL Threat Scanner":
         else:
             with st.spinner("جاري فحص الرابط واستخراج الخصائص والتحليل بالذكاء الاصطناعي..."):
                 # استدعاء دالة الفحص الأساسية لتوليد النتيجة والـ artifacts
-                raw_res = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
-                st.write("🔍 نوع الناتج:", type(raw_res))
-                st.write("📦 محتوى raw_res:", raw_res)
-                st.stop()
-                # إذا كانت النتيجة tuple يتم استخراج القاموس الأساسي منها
-                if isinstance(raw_res, tuple):
-                    result = raw_res[0] if isinstance(raw_res[0], dict) else {}
-                    # إذا كان العنصر الثاني هو artifacts
-                    if len(raw_res) > 1 and isinstance(raw_res[1], dict):
-                        artifacts = raw_res[1]
-                    else:
-                        artifacts = result.get("artifacts", {})
-                elif isinstance(raw_res, dict):
-                    result = raw_res
-                    artifacts = result.get("artifacts", {})
-                else:
-                    result = {}
-                    artifacts = {}
-
-                explain = result.get("explain", {})
-                threat_pct = result.get("threat_pct", 0.0)
-                severity = result.get("severity", "Safe")
-                features = result.get("features", {})
+                threat_pct, severity, explain, features, artifacts = analyzer.analyze_url_with_explanations(url_to_scan, ml_engine)
 
             # استخراج البيانات الأساسية من النتيجة ومن الـ artifacts بأمان
             whois_info = artifacts.get("whois", {})
-            domain_info = artifacts.get("domain_info", {})
+            domain_info = artifacts.get("domain", {})
             ssl_info = artifacts.get("ssl", {})
             st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
             dec_col1, dec_col2 = st.columns(2)
