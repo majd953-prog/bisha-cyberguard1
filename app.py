@@ -1097,19 +1097,20 @@ elif nav == "🎓 Project Overview & Documentation":
     st.subheader("🎓 التوثيق الأكاديمي ونظرة عامة على المشروع | Project Documentation")
     st.caption("الأهداف البحثية، المنهجية العلمية، ومعمارية النظام المطور في قسم الأمن السيبراني بجامعة بيشة.")
 
-    col1, col2 = st.columns([1.15, 1.15])
+  col1, col2 = st.columns([1.2, 1])
+
     with col1:
         st.markdown("## 🎯 أهداف المشروع البحثية")
         st.markdown(
             """
             <div class="card-soft">
-              <ul class="muted small" style="line-height: 1.9;">
-                <li>تحويل فحص الروابط من تحليل يدوي تقليدي إلى <b>منظومة ذكية استباقية</b> تعتمد على التعلم الآلي الهجين.</li>
-                <li>رفع دقة الكشف عن هجمات التصيد (Phishing) والتمويه البصري (Punycode / Homograph) وعناوين IP المباشرة.</li>
-                <li>تطبيق مفهوم <b>الذكاء الاصطناعي القابل للتفسير (Explainable AI)</b> لتوضيح الأسباب التقنية والأوزان التي أدت لحظر الرابط.</li>
-                <li>دمج استخبارات النطاقات (WHOIS & SSL/TLS) مع آلية استمرارية (Resilient Fallback) لضمان عمل المنصة في كافة الظروف.</li>
-                <li>حماية النطاقات الوطنية والأكاديمية السعودية من انتحال الهوية (Typosquatting) عبر خوارزميات التشابه النصي.</li>
-              </ul>
+                <ul class="muted small" style="line-height: 1.9;">
+                    <li><b>منظومة ذكية استباقية:</b> تحويل فحص الروابط من تحليل يدوي تقليدي إلى كشف استباقي يعتمد على التعلم الآلي الهجين.</li>
+                    <li><b>رفع دقة الكشف عن هجمات التصيد (Phishing):</b> كشف محاولات التمويه البصري (Punycode / Homograph) وعناوين IP المباشرة.</li>
+                    <li><b>تطبيق مفهوم الذكاء الاصطناعي القابل للتفسير (Explainable AI):</b> توضيح الأسباب التقنية والأوزان التي أدت لحظر الرابط.</li>
+                    <li><b>دمج استخبارات النطاقات (WHOIS & SSL/TLS):</b> مع آلية استمرارية (Resilient Fallback) لضمان عمل المنصة في كافة الظروف.</li>
+                    <li><b>حماية النطاقات الوطنية والأكاديمية السعودية من انتحال الهوية:</b> عبر خوارزميات التشابه النصي (Typosquatting).</li>
+                </ul>
             </div>
             """,
             unsafe_allow_html=True,
@@ -1119,34 +1120,34 @@ elif nav == "🎓 Project Overview & Documentation":
         st.markdown(
             """
             <div class="card-soft">
-              <ol class="muted small" style="line-height: 1.9;">
-                <li><b>استخلاص الخصائص (Feature Extraction):</b> استخراج 25 إشارة هيكلية وإحصائية ولغوية من الرابط.</li>
-                <li><b>التحقق الشبكي (Network & SSL Intelligence):</b> فحص شهادة التشفير وعمر النطاق عبر WHOIS.</li>
-                <li><b>كاشف الانتحال (Spoofing Detector):</b> قياس المسافة النصية لكشف محاولات تقليد النطاقات الرسمية.</li>
-                <li><b>التصنيف الهجين (Hybrid ML Classification):</b> تمرير المتجهات إلى نموذج RandomForest المدرب.</li>
-                <li><b>التفسير الموزون (Weighted Explainability):</b> إصدار الحكم النهائي مع جدول تفصيلي للأوزان والأسباب.</li>
-              </ol>
+                <ol class="muted small" style="line-height: 1.9;">
+                    <li><b>استخلاص الخصائص (Feature Extraction):</b> استخراج 25 إشارة هيكلية وإحصائية ولغوية من الرابط.</li>
+                    <li><b>التحقق الشبكي (Network & SSL Intelligence):</b> فحص شهادة التشفير وعمر النطاق عبر WHOIS.</li>
+                    <li><b>كاشف الانتحال (Spoofing Detector):</b> قياس المسافة النصية لكشف محاولات تقليد النطاقات الرسمية.</li>
+                    <li><b>التصنيف الهجين (Hybrid ML Classification):</b> تمرير المتجهات إلى نموذج RandomForest المدرب.</li>
+                    <li><b>التفسير الموزون (Weighted Explainability):</b> إصدار الحكم النهائي مع جدول تفصيلي للأوزان والأسباب.</li>
+                </ol>
             </div>
             """,
             unsafe_allow_html=True,
         )
-col1, col2 = st.columns([1.2, 1])
-with col2:
+
+    with col2:
         st.markdown("## 🏛️ البطاقة التعريفية للمشروع")
         st.markdown(
             """
             <div class="card-soft" style="line-height: 2;">
-              <div><b>الجامعة:</b> جامعة بيشة (University of Bisha)</div>
-              <div><b>الكلية:</b> كلية الحاسبات وتقنية المعلومات</div>
-              <div><b>القسم العلمي:</b> قسم الأمن السيبراني (Cybersecurity)</div>
-              <div class="hr"></div>
-              <div><b>إعداد الباحث:</b> م/ عبدالرحمن ماجد آل حامد</div>
-              <div><b>الرقم الجامعي:</b> <span class="mono">447807111</span></div>
-              <div><b>إشراف:</b> د. منير عبدالله القباطي</div>
-              <div><b>العام الجامعي:</b> <span class="mono">2026 / 2025</span></div>
+                <div><b>الجامعة:</b> جامعة بيشة (University of Bisha)</div>
+                <div><b>الكلية:</b> كلية الحاسبات وتقنية المعلومات</div>
+                <div><b>القسم العلمي:</b> قسم الأمن السيبراني (Cybersecurity)</div>
+                <div class="hr"></div>
+                <div><b>إعداد الباحث:</b> م/ عبدالرحمن ماجد آل حامد</div>
+                <div><b>الرقم الجامعي:</b> <span class="mono">447807111</span></div>
+                <div><b>إشراف:</b> د. منير عبدالله القباطي</div>
+                <div><b>العام الجامعي:</b> <span class="mono">2025 / 2026</span></div>
             </div>
-            """, 
-            unsafe_allow_html=True
+            """,
+            unsafe_allow_html=True,
         )
         st.markdown("## 🧩 المكونات البرمجية للنظام")
         st.markdown(
