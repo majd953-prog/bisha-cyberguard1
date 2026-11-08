@@ -42,11 +42,9 @@ if "session_history" not in st.session_state:
 if "model_ready" not in st.session_state:
     st.session_state["model_ready"] = False
 
-# تثبيت البيانات الأكاديمية للباحث
+# تثبيت البيانات الأكاديمية للباحثين
 if "student_name" not in st.session_state:
-    st.session_state["student_name"] = os.environ.get("STUDENT_NAME", "عبدالرحمن ماجد آل حامد")
-if "student_id" not in st.session_state:
-    st.session_state["student_id"] = os.environ.get("STUDENT_ID", "447807111")
+    st.session_state["student_name"] = os.environ.get("STUDENT_NAME", "الطالب/ عبدالرحمن ماجد آل حامد & الطالب/ ابراهيم عبيد الدوسري")
 if "supervisor_name" not in st.session_state:
     st.session_state["supervisor_name"] = os.environ.get("SUPERVISOR_NAME", "د. منير عبدالله القباطي")
 if "academic_year" not in st.session_state:
@@ -326,10 +324,9 @@ with st.sidebar:
         <div class="academic-id-card">
           <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
           <div class="dept-title">كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
-          <div class="student-name">🎓 م/ عبدالرحمن ماجد آل حامد</div>
-          <div class="meta-row">
-            <span class="meta-label">الرقم الجامعي:</span>
-            <span class="mono">447807111</span>
+          <div class="student-name" style="font-size: 1.02rem; line-height: 1.6;">
+            🎓 الطالب/ عبدالرحمن ماجد آل حامد<br>
+            🎓 الطالب/ ابراهيم عبيد الدوسري
           </div>
           <div class="meta-row">
             <span class="meta-label">إشراف:</span>
@@ -1095,8 +1092,9 @@ elif nav == "🎓 Project Overview & Documentation":
                 <div><b>الكلية:</b> كلية الحاسبات وتقنية المعلومات</div>
                 <div><b>القسم العلمي:</b> قسم الأمن السيبراني (Cybersecurity)</div>
                 <div class="hr"></div>
-                <div><b>إعداد الباحث:</b> م/ عبدالرحمن ماجد آل حامد</div>
-                <div><b>الرقم الجامعي:</b> <span class="mono">447807111</span></div>
+                <div><b>إعداد الباحثين:</b></div>
+                <div>• الطالب عبدالرحمن ماجد آل حامد</div>
+                <div>• الطالب ابراهيم عبيد الدوسري</div>
                 <div><b>إشراف:</b> د. منير عبدالله القباطي</div>
                 <div><b>العام الجامعي:</b> <span class="mono">2025 / 2026</span></div>
             </div>
