@@ -224,95 +224,169 @@ with st.sidebar:
             direction: rtl;
             border-radius: 18px;
             padding: 18px 16px;
-            background: linear-gradient(135deg, rgba(27, 67, 143, .14), rgba(0, 188, 212, .10));
-            border: 1px solid rgba(255,255,255,.22);
-            box-shadow: 0 14px 38px rgba(0,0,0,.25);
+            background: linear-gradient(135deg, rgba(11,61,107,.55), rgba(95,15,64,.35));
+            border: 1px solid rgba(255,255,255,.18);
+            box-shadow: 0 18px 50px rgba(0,0,0,.45);
             backdrop-filter: blur(10px);
             overflow: hidden;
             position: relative;
           }
+
+          /* glow blobs */
           .academic-id-card:before{
             content:"";
             position:absolute;
             inset:-2px;
-            background: radial-gradient(circle at 20% 0%, rgba(0,188,212,.35), transparent 45%),
-                        radial-gradient(circle at 100% 20%, rgba(27,67,143,.35), transparent 40%);
+            background:
+              radial-gradient(circle at 18% 10%, rgba(0,188,212,.55), transparent 46%),
+              radial-gradient(circle at 98% 22%, rgba(141,84,255,.45), transparent 42%),
+              radial-gradient(circle at 40% 110%, rgba(107,39,55,.35), transparent 46%);
+            opacity: .85;
             pointer-events:none;
           }
 
-          .uni-title{
+          /* subtle grid */
+          .academic-id-card:after{
+            content:"";
+            position:absolute;
+            inset:0;
+            background:
+              linear-gradient(to right, rgba(255,255,255,.06) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 26px 26px;
+            opacity: .25;
+            pointer-events:none;
+          }
+
+          .academic-id-card > *{
             position: relative;
-            font-size: 1.08rem;
-            font-weight: 900;
+            z-index: 1;
+          }
+
+          .top-badge{
+            display:flex;
+            align-items:center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+          }
+
+          .uni-mark{
+            display:flex;
+            align-items:center;
+            gap: 10px;
+          }
+
+          .uni-logo{
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background:
+              radial-gradient(circle at 30% 20%, rgba(255,255,255,.25), transparent 40%),
+              linear-gradient(145deg, rgba(0,188,212,.55), rgba(27,67,143,.35));
+            border: 1px solid rgba(255,255,255,.22);
+            box-shadow: 0 12px 26px rgba(0,0,0,.35);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size: 1.05rem;
+          }
+
+          .uni-title{
+            font-size: 1.06rem;
+            font-weight: 950;
             letter-spacing: .2px;
             color: #EAF2FF;
-            margin-bottom: 10px;
-            text-shadow: 0 6px 18px rgba(0,0,0,.35);
+            text-shadow: 0 10px 28px rgba(0,0,0,.55);
+            line-height: 1.2;
           }
 
           .dept-title{
-            position: relative;
-            display: inline-flex;
-            align-items: center;
+            width: 100%;
+            display:flex;
+            align-items:center;
+            justify-content:flex-start;
             gap: 10px;
             font-size: .98rem;
-            font-weight: 800;
+            font-weight: 900;
             color: #E7F7FF;
-            background: rgba(0,188,212,.14);
-            border: 1px solid rgba(0,188,212,.35);
-            padding: 8px 12px;
+            background: rgba(0,188,212,.12);
+            border: 1px solid rgba(0,188,212,.26);
+            padding: 10px 12px;
             border-radius: 14px;
-            margin-bottom: 14px;
+            margin: 6px 0 14px;
           }
 
           .student-name{
-            position: relative;
             font-size: 1.02rem;
-            line-height: 1.7;
+            line-height: 1.75;
             color: rgba(255,255,255,.94);
-            font-weight: 700;
-            padding: 12px 12px;
+            font-weight: 800;
+            padding: 14px 12px;
             border-radius: 14px;
-            background: rgba(0,0,0,.18);
+            background: rgba(0,0,0,.22);
             border: 1px solid rgba(255,255,255,.10);
             margin-bottom: 14px;
           }
 
-          .meta-row{
-            position: relative;
-            display:flex;
-            justify-content: space-between;
-            align-items:center;
+          .student-name b{
+            color: #EAFBFF;
+            font-weight: 950;
+          }
+
+          .meta-grid{
+            display:grid;
+            grid-template-columns: 1fr;
             gap: 10px;
-            padding: 10px 10px;
+          }
+
+          .meta-row{
+            display:flex;
+            align-items:center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
             border-radius: 12px;
-            margin-top: 10px;
             background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.12);
           }
 
           .meta-label{
-            color: rgba(255,255,255,.72);
-            font-weight: 850;
-            letter-spacing: .2px;
+            color: rgba(255,255,255,.78);
+            font-weight: 950;
+            letter-spacing: .25px;
             white-space: nowrap;
+          }
+
+          .meta-value{
+            color: rgba(255,255,255,.92);
+            font-weight: 900;
+            text-align: left;
           }
 
           .mono{
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-weight: 900;
+            font-weight: 950;
+            letter-spacing: .2px;
             color: #D8F8FF;
           }
 
-          .meta-row span:last-child{
-            color: rgba(255,255,255,.92);
-            font-weight: 800;
-            text-align: left;
+          /* small separators */
+          .divider{
+            height:1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+            margin: 10px 0 12px;
+            border-radius: 999px;
           }
         </style>
 
         <div class="academic-id-card">
-          <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
+          <div class="top-badge">
+            <div class="uni-mark">
+              <div class="uni-logo">🏛️</div>
+              <div class="uni-title">جامعة بيشة · University of Bisha</div>
+            </div>
+          </div>
 
           <div class="dept-title">🧠 كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
 
@@ -321,14 +395,18 @@ with st.sidebar:
             🎓 الطالب/ <b>ابراهيم عبيد الدوسري</b>
           </div>
 
-          <div class="meta-row">
-            <span class="meta-label">إشراف:</span>
-            <span>د. منير عبدالله القباطي</span>
-          </div>
+          <div class="divider"></div>
 
-          <div class="meta-row">
-            <span class="meta-label">العام الجامعي:</span>
-            <span class="mono">2026 / 2025</span>
+          <div class="meta-grid">
+            <div class="meta-row">
+              <span class="meta-label">إشراف:</span>
+              <span class="meta-value">د. منير عبدالله القباطي</span>
+            </div>
+
+            <div class="meta-row">
+              <span class="meta-label">العام الجامعي:</span>
+              <span class="meta-value mono">2026 / 2025</span>
+            </div>
           </div>
         </div>
         """,
