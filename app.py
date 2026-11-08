@@ -364,10 +364,7 @@ with st.sidebar:
               <span class="meta-value">span>
             </div>
 
-            <div class="meta-row">
-              <span class="meta-label">العام الجامعي:</span>
-              <span class="meta-value mono">2026 / 2025</span>
-            </div>
+          
           </div>
         </div>
         """,
