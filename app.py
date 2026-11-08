@@ -258,22 +258,15 @@ with st.sidebar:
           .uni-mark{
             display:flex;
             align-items:center;
+            justify-content: space-between;
             gap: 10px;
             margin-bottom: 12px;
           }
-          .uni-logo{
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background:
-              radial-gradient(circle at 30% 20%, rgba(255,255,255,.25), transparent 40%),
-              linear-gradient(145deg, rgba(0,188,212,.55), rgba(27,67,143,.35));
-            border: 1px solid rgba(255,255,255,.22);
-            box-shadow: 0 12px 26px rgba(0,0,0,.35);
+          .uni-left{
             display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size: 1.05rem;
+            flex-direction: column;
+            gap: 3px;
+            text-align: right;
           }
           .uni-title{
             font-size: 1.06rem;
@@ -283,7 +276,6 @@ with st.sidebar:
             text-shadow: 0 10px 28px rgba(0,0,0,.55);
             line-height: 1.2;
           }
-
           .dept-title{
             width: 100%;
             display:flex;
@@ -299,7 +291,6 @@ with st.sidebar:
             border-radius: 14px;
             margin: 6px 0 14px;
           }
-
           .student-name{
             font-size: 1.02rem;
             line-height: 1.75;
@@ -311,10 +302,7 @@ with st.sidebar:
             border: 1px solid rgba(255,255,255,.10);
             margin-bottom: 14px;
           }
-          .student-name b{
-            color: #EAFBFF;
-            font-weight: 950;
-          }
+          .student-name b{ color: #EAFBFF; font-weight: 950; }
 
           .divider{
             height:1px;
@@ -323,16 +311,12 @@ with st.sidebar:
             border-radius: 999px;
           }
 
-          .meta-grid{
-            display:grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-          }
+          .meta-grid{ display:grid; gap: 10px; }
 
           .meta-row{
             display:flex;
             align-items:center;
-            justify-content: space-between;
+            justify-content: space-between; /* خلّيها يمين/يسار */
             gap: 12px;
             padding: 11px 12px;
             border-radius: 12px;
@@ -340,7 +324,9 @@ with st.sidebar:
             border: 1px solid rgba(255,255,255,.12);
           }
 
+          /* اجبار اتجاه النص داخل السطر */
           .meta-label{
+            direction: rtl;
             color: rgba(255,255,255,.78);
             font-weight: 950;
             letter-spacing: .25px;
@@ -348,9 +334,10 @@ with st.sidebar:
           }
 
           .meta-value{
+            direction: rtl;
             color: rgba(255,255,255,.92);
             font-weight: 900;
-            text-align: left;
+            text-align: left; /* قيمة على اليسار مثل البطاقات الرسمية */
           }
 
           .mono{
@@ -363,8 +350,10 @@ with st.sidebar:
 
         <div class="academic-id-card">
           <div class="uni-mark">
-            <div class="uni-logo">🏛️</div>
-            <div class="uni-title">جامعة بيشة · University of Bisha</div>
+            <div class="uni-left" style="text-align:right;">
+              <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
+            </div>
+            <div style="font-size:1.05rem; opacity:.95;">🏛️</div>
           </div>
 
           <div class="dept-title">🧠 كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
