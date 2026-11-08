@@ -361,7 +361,7 @@ with st.sidebar:
           <div class="meta-grid">
             <div class="meta-row">
               <span class="meta-label">إشراف :  د. منير عبدالله القباطي</span>
-              <span class="meta-value">د. منير عبدالله القباطي</span>
+              
             </div>
 
             <div class="meta-row">
