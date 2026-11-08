@@ -117,7 +117,7 @@ def apply_theme(theme: str):
 
     css = f"""
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
       html, body, [class*="css"] {{
         font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -128,184 +128,82 @@ def apply_theme(theme: str):
         color: {fg} !important;
       }}
 
+      /* إخفاء شريط Streamlit العلوي الافتراضي المشتت */
+      header[data-testid="stHeader"] {{
+        background: transparent !important;
+      }}
+      .block-container {{
+        padding-top: 1.5rem !important;
+        max-width: 1380px !important;
+      }}
+
       section[data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
-        color: {fg} !important;
         border-right: 1px solid {border} !important;
       }}
 
-      .academic-id-card {{
-        background: {banner_bg} !important;
-        border: 1.5px solid {gold} !important;
-        border-radius: 14px;
-        padding: 18px 16px;
-        color: #FFFFFF !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        direction: rtl;
-        text-align: right;
-        margin-bottom: 12px;
-      }}
-      .academic-id-card .uni-title {{
-        color: {gold};
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 0.3px;
-        margin-bottom: 4px;
-      }}
-      .academic-id-card .dept-title {{
-        color: rgba(255,255,255,0.85);
-        font-size: 0.8rem;
-        margin-bottom: 12px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-      }}
-      .academic-id-card .student-name {{
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin-bottom: 8px;
-      }}
-      .academic-id-card .meta-row {{
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.82rem;
-        color: rgba(255,255,255,0.9);
-        margin-top: 5px;
-        background: rgba(0,0,0,0.2);
-        padding: 5px 10px;
-        border-radius: 6px;
-      }}
-      .academic-id-card .meta-label {{
-        color: {gold};
-        font-weight: 600;
-      }}
-
-      .hero-banner {{
-        background: {banner_bg};
-        border: 1.5px solid {banner_border};
-        border-radius: 16px;
-        padding: 22px 28px;
-        color: #FFFFFF;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.12);
-        margin-bottom: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 16px;
-      }}
-      .hero-title {{
-        font-size: 1.85rem;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }}
-      .hero-subtitle {{
-        color: rgba(255,255,255,0.85);
-        font-size: 0.95rem;
-        margin-top: 4px;
-      }}
-
-      .card-soft {{
+      /* تحويل حاويات Streamlit الأصلية إلى بطاقات فخمة */
+      [data-testid="stVerticalBlockBorderWrapper"] {{
         background: {card} !important;
         border: 1px solid {border} !important;
-        border-radius: 14px;
-        padding: 18px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-      }}
-      .card-accent {{
-        background: {card2} !important;
-        border: 1px solid {border} !important;
-        border-radius: 14px;
-        padding: 16px;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+        backdrop-filter: blur(12px);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
       }}
 
-      div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {{
+      /* شبكة الاستخبارات المصغرة (Bento Grid for WHOIS/SSL) */
+      .intel-grid {{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 12px;
+        direction: rtl;
+      }}
+      .intel-box {{
+        background: {card2};
+        border: 1px solid {border};
+        border-radius: 12px;
+        padding: 12px 14px;
+      }}
+      .intel-label {{
+        font-size: 0.78rem;
+        color: {muted};
+        font-weight: 700;
+        margin-bottom: 4px;
+      }}
+      .intel-val {{
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: {fg};
+        word-break: break-all;
+      }}
+
+      /* تمييز الأزرار الرئيسية (Primary) عن الأزرار الثانوية (Secondary) */
+      div.stButton > button[kind="primary"], div[data-testid="stFormSubmitButton"] > button {{
         background: {button_bg_css} !important;
         color: {button_fg_css} !important;
-        border: 1px solid {button_border_css} !important;
+        border: 1px solid {gold} !important;
         border-radius: 10px !important;
-        padding: 0.55rem 1rem !important;
-        font-weight: 700 !important;
-        transition: all 0.25s ease-in-out !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.10) !important;
-        unicode-bidi: plaintext !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: 800 !important;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.14) !important;
+        transition: all 0.2s ease !important;
       }}
-      div.stButton > button:hover, div.stDownloadButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {{
+      div.stButton > button[kind="secondary"] {{
+        background: {card} !important;
+        color: {fg} !important;
+        border: 1px solid {border} !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+      }}
+      div.stButton > button:hover {{
         border-color: {gold} !important;
-        box-shadow: 0 6px 16px rgba(212, 175, 55, 0.30) !important;
-        transform: translateY(-1px);
-      }}
-
-      .stTextInput > div > div > input {{
-        border: 1.5px solid {border} !important;
-        background: {input_bg} !important;
-        color: {fg} !important;
-        border-radius: 10px !important;
-        padding: 0.55rem 0.85rem !important;
-      }}
-      .stTextInput label, .stSelectbox label, .stMultiSelect label, .stSlider label, .stRadio label {{
-        color: {fg} !important;
-        font-weight: 700 !important;
-      }}
-
-      .stMarkdown, h1, h2, h3, h4 {{
-        color: {fg} !important;
-      }}
-      .muted {{
-        color: {muted} !important;
-      }}
-
-      .badge {{
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border-radius: 999px;
-        border: 1px solid {border};
-        background: {card};
-        font-weight: 800;
-        font-size: 0.95rem;
-      }}
-      .danger, .critical {{
-        background: rgba(239, 68, 68, 0.14) !important;
-        border-color: rgba(239, 68, 68, 0.50) !important;
-        color: {crit_fg} !important;
-      }}
-      .safe {{
-        background: rgba(34, 197, 94, 0.14) !important;
-        border-color: rgba(34, 197, 94, 0.45) !important;
-        color: {safe_fg} !important;
-      }}
-      .low {{
-        background: rgba(14, 165, 233, 0.14) !important;
-        border-color: rgba(14, 165, 233, 0.45) !important;
-        color: {low_fg} !important;
-      }}
-      .medium {{
-        background: rgba(212, 175, 55, 0.16) !important;
-        border-color: rgba(212, 175, 55, 0.55) !important;
-        color: {med_fg} !important;
-      }}
-      .high {{
-        background: rgba(236, 72, 153, 0.14) !important;
-        border-color: rgba(236, 72, 153, 0.45) !important;
-        color: {high_fg} !important;
-      }}
-
-      .mono {{
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      }}
-      .small {{
-        font-size: 0.92rem;
-      }}
-      .hr {{
-        height: 1px;
-        background: {border};
-        margin: 16px 0;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(212, 175, 55, 0.25) !important;
       }}
     </style>
     """
