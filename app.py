@@ -255,27 +255,6 @@ with st.sidebar:
           }
           .academic-id-card > *{ position: relative; z-index: 1; }
 
-          .uni-mark{
-            display:flex;
-            align-items:center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 12px;
-          }
-          .uni-left{
-            display:flex;
-            flex-direction: column;
-            gap: 3px;
-            text-align: right;
-          }
-          .uni-title{
-            font-size: 1.06rem;
-            font-weight: 950;
-            letter-spacing: .2px;
-            color: #EAF2FF;
-            text-shadow: 0 10px 28px rgba(0,0,0,.55);
-            line-height: 1.2;
-          }
           .dept-title{
             width: 100%;
             display:flex;
@@ -291,6 +270,7 @@ with st.sidebar:
             border-radius: 14px;
             margin: 6px 0 14px;
           }
+
           .student-name{
             font-size: 1.02rem;
             line-height: 1.75;
@@ -316,15 +296,13 @@ with st.sidebar:
           .meta-row{
             display:flex;
             align-items:center;
-            justify-content: space-between; /* خلّيها يمين/يسار */
+            justify-content: space-between;
             gap: 12px;
             padding: 11px 12px;
             border-radius: 12px;
             background: rgba(255,255,255,.06);
             border: 1px solid rgba(255,255,255,.12);
           }
-
-          /* اجبار اتجاه النص داخل السطر */
           .meta-label{
             direction: rtl;
             color: rgba(255,255,255,.78);
@@ -332,12 +310,11 @@ with st.sidebar:
             letter-spacing: .25px;
             white-space: nowrap;
           }
-
           .meta-value{
             direction: rtl;
             color: rgba(255,255,255,.92);
             font-weight: 900;
-            text-align: left; /* قيمة على اليسار مثل البطاقات الرسمية */
+            text-align: left;
           }
 
           .mono{
@@ -346,11 +323,27 @@ with st.sidebar:
             letter-spacing: .2px;
             color: #D8F8FF;
           }
+
+          .uni-title{
+            font-size: 1.06rem;
+            font-weight: 950;
+            letter-spacing: .2px;
+            color: #EAF2FF;
+            text-shadow: 0 10px 28px rgba(0,0,0,.55);
+            line-height: 1.2;
+          }
+          .uni-mark{
+            display:flex;
+            align-items:center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+          }
         </style>
 
         <div class="academic-id-card">
           <div class="uni-mark">
-            <div class="uni-left" style="text-align:right;">
+            <div style="text-align:right;">
               <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
             </div>
             <div style="font-size:1.05rem; opacity:.95;">🏛️</div>
@@ -380,6 +373,7 @@ with st.sidebar:
         """,
         unsafe_allow_html=True,
     )
+
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
     st.markdown("<div style='font-weight: 700; margin-bottom: 8px;'>🧭 أقسام المنصة (Navigation)</div>", unsafe_allow_html=True)
