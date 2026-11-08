@@ -362,7 +362,6 @@ with st.sidebar:
             <div class="meta-row">
               <span class="meta-label">إشراف :  د. منير عبدالله القباطي</span>
               
-            </div>
 
           
           </div>
