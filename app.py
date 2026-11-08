@@ -231,8 +231,6 @@ with st.sidebar:
             overflow: hidden;
             position: relative;
           }
-
-          /* glow blobs */
           .academic-id-card:before{
             content:"";
             position:absolute;
@@ -244,8 +242,6 @@ with st.sidebar:
             opacity: .85;
             pointer-events:none;
           }
-
-          /* subtle grid */
           .academic-id-card:after{
             content:"";
             position:absolute;
@@ -257,26 +253,14 @@ with st.sidebar:
             opacity: .25;
             pointer-events:none;
           }
-
-          .academic-id-card > *{
-            position: relative;
-            z-index: 1;
-          }
-
-          .top-badge{
-            display:flex;
-            align-items:center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 12px;
-          }
+          .academic-id-card > *{ position: relative; z-index: 1; }
 
           .uni-mark{
             display:flex;
             align-items:center;
             gap: 10px;
+            margin-bottom: 12px;
           }
-
           .uni-logo{
             width: 44px;
             height: 44px;
@@ -291,7 +275,6 @@ with st.sidebar:
             justify-content:center;
             font-size: 1.05rem;
           }
-
           .uni-title{
             font-size: 1.06rem;
             font-weight: 950;
@@ -328,10 +311,16 @@ with st.sidebar:
             border: 1px solid rgba(255,255,255,.10);
             margin-bottom: 14px;
           }
-
           .student-name b{
             color: #EAFBFF;
             font-weight: 950;
+          }
+
+          .divider{
+            height:1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+            margin: 10px 0 12px;
+            border-radius: 999px;
           }
 
           .meta-grid{
@@ -370,22 +359,12 @@ with st.sidebar:
             letter-spacing: .2px;
             color: #D8F8FF;
           }
-
-          /* small separators */
-          .divider{
-            height:1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
-            margin: 10px 0 12px;
-            border-radius: 999px;
-          }
         </style>
 
         <div class="academic-id-card">
-          <div class="top-badge">
-            <div class="uni-mark">
-              <div class="uni-logo">🏛️</div>
-              <div class="uni-title">جامعة بيشة · University of Bisha</div>
-            </div>
+          <div class="uni-mark">
+            <div class="uni-logo">🏛️</div>
+            <div class="uni-title">جامعة بيشة · University of Bisha</div>
           </div>
 
           <div class="dept-title">🧠 كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
