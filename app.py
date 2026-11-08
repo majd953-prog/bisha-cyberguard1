@@ -219,17 +219,113 @@ plot_template, FG, MUTED, NEON_COLOR, NEON2_COLOR, GOLD_COLOR = apply_theme(st.s
 with st.sidebar:
     st.markdown(
         """
+        <style>
+          .academic-id-card{
+            direction: rtl;
+            border-radius: 18px;
+            padding: 18px 16px;
+            background: linear-gradient(135deg, rgba(27, 67, 143, .14), rgba(0, 188, 212, .10));
+            border: 1px solid rgba(255,255,255,.22);
+            box-shadow: 0 14px 38px rgba(0,0,0,.25);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            position: relative;
+          }
+          .academic-id-card:before{
+            content:"";
+            position:absolute;
+            inset:-2px;
+            background: radial-gradient(circle at 20% 0%, rgba(0,188,212,.35), transparent 45%),
+                        radial-gradient(circle at 100% 20%, rgba(27,67,143,.35), transparent 40%);
+            pointer-events:none;
+          }
+
+          .uni-title{
+            position: relative;
+            font-size: 1.08rem;
+            font-weight: 900;
+            letter-spacing: .2px;
+            color: #EAF2FF;
+            margin-bottom: 10px;
+            text-shadow: 0 6px 18px rgba(0,0,0,.35);
+          }
+
+          .dept-title{
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .98rem;
+            font-weight: 800;
+            color: #E7F7FF;
+            background: rgba(0,188,212,.14);
+            border: 1px solid rgba(0,188,212,.35);
+            padding: 8px 12px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+          }
+
+          .student-name{
+            position: relative;
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,.94);
+            font-weight: 700;
+            padding: 12px 12px;
+            border-radius: 14px;
+            background: rgba(0,0,0,.18);
+            border: 1px solid rgba(255,255,255,.10);
+            margin-bottom: 14px;
+          }
+
+          .meta-row{
+            position: relative;
+            display:flex;
+            justify-content: space-between;
+            align-items:center;
+            gap: 10px;
+            padding: 10px 10px;
+            border-radius: 12px;
+            margin-top: 10px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.10);
+          }
+
+          .meta-label{
+            color: rgba(255,255,255,.72);
+            font-weight: 850;
+            letter-spacing: .2px;
+            white-space: nowrap;
+          }
+
+          .mono{
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-weight: 900;
+            color: #D8F8FF;
+          }
+
+          .meta-row span:last-child{
+            color: rgba(255,255,255,.92);
+            font-weight: 800;
+            text-align: left;
+          }
+        </style>
+
         <div class="academic-id-card">
           <div class="uni-title">🏛️ جامعة بيشة · University of Bisha</div>
-          <div class="dept-title">كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
-          <div class="student-name" style="font-size: 1.02rem; line-height: 1.6;">
-            🎓 الطالب/ عبدالرحمن ماجد آل حامد<br>
-            🎓 الطالب/ ابراهيم عبيد الدوسري
+
+          <div class="dept-title">🧠 كلية الحاسبات وتقنية المعلومات · قسم الأمن السيبراني</div>
+
+          <div class="student-name">
+            🎓 الطالب/ <b>عبدالرحمن ماجد آل حامد</b><br>
+            🎓 الطالب/ <b>ابراهيم عبيد الدوسري</b>
           </div>
+
           <div class="meta-row">
             <span class="meta-label">إشراف:</span>
             <span>د. منير عبدالله القباطي</span>
           </div>
+
           <div class="meta-row">
             <span class="meta-label">العام الجامعي:</span>
             <span class="mono">2026 / 2025</span>
